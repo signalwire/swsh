@@ -4,9 +4,9 @@ SignalWire interactive SHell
 A command line shell for managing and administrating SignalWire Spaces.
 For any questions or assistance, please contact SignalWire Support.
 
-=============
+---
 INSTALLATION
-=============
+---
 Linux
 Download linux version of swsh
 sudo mv /path/to/swish-linux /usr/local/bin/swsh
@@ -18,10 +18,9 @@ sudo mv /path/to/swish-apple-silicon /usr/local/bin/swsh
 Windows
 Download windows exe version of swsh
 
-
-================
+---
 SETUP and USAGE
-================
+---
 Linux / MacOS:
 1.  Open Terminal
 2.  Three Environment variables need to be set on each OS in for SWiSH.  Run the following commands:
