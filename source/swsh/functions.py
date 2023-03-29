@@ -3,7 +3,7 @@ import base64
 import requests
 import os,sys
 import json
-from pygments import highlight, lexers, formatters
+#from pygments import highlight, lexers, formatters
 ####
 
 env_var_dict = {}
@@ -220,9 +220,11 @@ def json_nice_print(j):
         print("No Results Found!")
     else:
         json_formatted_response = json.dumps(j, indent=4)
-        #print(json_formatted_response)
-        colorful_json = highlight(json_formatted_response, lexers.JsonLexer(), formatters.SwishFormatter())
-        print (colorful_json)
+        print(json_formatted_response)
+        # Removing colorized JSON for now.  Leaving here to come back to later.
+        # Required a patch to set the correct colors for JSON in the pygments package.  Will need to work around that for pip installing.
+        # colorful_json = highlight(json_formatted_response, lexers.JsonLexer(), formatters.SwishFormatter())
+        # print (colorful_json)
 
 def encode_auth(project_id, rest_api_token):
     auth = str(project_id + ":" + rest_api_token)
