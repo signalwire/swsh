@@ -8,9 +8,6 @@ import json
 import time
 import re
 import urllib.parse
-## This is temporary ##
-#from signalwire.voice_response import *
-#from twilio.twiml.messaging_response import Message, MessagingResponse
 from signalwire.rest import Client as signalwire_client
 
 
