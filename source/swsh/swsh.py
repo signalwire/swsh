@@ -20,6 +20,27 @@ class MyPrompt(cmd2.Cmd):
     noninteractive_flag = 0
     swish_version = "1.0"
 
+    # Verify the OS env is set.  Ask for input if not.
+    # TODO/NOTE: This does not export the vars for future use.  This may be something to push into a .swsh file at some point
+    signalwire_space, project_id, rest_api_token = get_environment()
+    if signalwire_space == "":
+        signalwire_space = input ("\nMissing Signalwire Space!\n  Enter here: ")
+
+    if project_id == "":
+        project_id = input ("\nMissing Project ID!\n  Enter here:  ")
+
+    if rest_api_token == "":
+        rest_api_token = input ("\nMissing API Token!\n  Enter here: ")
+
+    # validate what was entered and then put them into the environment
+    valid_creds = validate_signalwire_creds(signalwire_space, project_id, rest_api_token)
+    if valid_creds:
+        os.environ['SIGNALWIRE_SPACE'] = signalwire_space
+        os.environ['PROJECT_ID'] = project_id
+        os.environ['REST_API_TOKEN'] = rest_api_token
+    else:
+        print ("ERROR: This are not valid SignalWire API Credentials\n")
+
 
     if len(sys.argv) > 1:
         # Sets up non-interactive mode
