@@ -14,22 +14,26 @@ CLASSIFIERS = [
 
 setup(
   name='swsh',
-  version='0.1.0',
+  version='0.1.3',
   description='SignalWire interactive SHell',
+  entry_points={
+    'console_scripts': ['swsh=swsh.swsh:main']
+  },
   #long_description=read('README.md'),
   long_description_content_type="text/markdown",
   classifiers=CLASSIFIERS,
-  url='https://github.com/shane-signalwire/swish',
-  author='SignalWire Team',
-  author_email='open.source@signalwire.com',
+  url='https://github.com/signalwire/swish',
+  author='Shane Harrell',
+  author_email='shane.harrell@signalwire.com',
   license='MIT',
   install_requires=[
     'signalwire',
     'requests',
     'python-dotenv',
     'cmd2',
-    'setuptools',
-    'pygments==2.14.0',
+    #'setuptools',
+    #'pygments==2.14.0',
+    'pyreadline3'
   ],
   python_requires='>=3.6',
   zip_safe=False
