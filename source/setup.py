@@ -33,7 +33,8 @@ setup(
     'cmd2',
     #'setuptools',
     #'pygments==2.14.0',
-    'pyreadline3'
+    'pyreadline3',
+    'gnureadline'
   ],
   python_requires='>=3.6',
   zip_safe=False
