@@ -25,35 +25,46 @@ class MyPrompt(cmd2.Cmd):
     # TODO/NOTE pt 2: we can add switches like --signalwire-space <spacename> to this as well
     signalwire_space, project_id, rest_api_token = get_environment()
     if signalwire_space == "" or signalwire_space is None or project_id == "" or project_id is None or rest_api_token == "" or rest_api_token is None:
-        print("\nEnvironment variables not set.  Add the following to env for automated start-up!\n\nSIGNALWIRE_SPACE=<space_name>\nPROJECT_ID=<project_id>\nREST_API_TOKEN=<api_token>\n")
+        if len(sys.argv) > 1:
+            sys.exit("""ERROR:  ENV vars not set!\n
+Run the following commands at the terminal to add to system env for non-interactive mode:
+Windows:
+  setx SIGNALWIRE_SPACE=<space_name>
+  setx PROJECT_ID=<project_id>
+  setx REST_API_TOKEN=<api_token>"
 
+Linux / MacOS
+  export SIGNALWIRE_SPACE=<space_name>
+  export PROJECT_ID=<project_id>
+  export REST_API_TOKEN=<api_token>"       
+""")
+        print("""No environment detected!\n  
+Run the following commands at the terminal to add env vars to speed up start time:
+Windows:
+  setx SIGNALWIRE_SPACE=<space_name>
+  setx PROJECT_ID=<project_id>
+  setx REST_API_TOKEN=<api_token>"
+
+Linux / MacOS
+  export SIGNALWIRE_SPACE=<space_name>
+  export PROJECT_ID=<project_id>
+  export REST_API_TOKEN=<api_token>\n\n
+""")
         if signalwire_space == "" or signalwire_space is None:
             signalwire_space = input ("\nEnter Signalwire Space: ")
-
         if project_id == "" or project_id is None:
             project_id = input ("Enter Project ID: ")
-
         if rest_api_token == "" or rest_api_token is None:
             rest_api_token = input ("Enter Rest API Token: ")
-
-    # validate what was entered and then put them into the environment
-    valid_creds = validate_signalwire_creds(signalwire_space, project_id, rest_api_token)
-    if valid_creds:
-        os.environ['SIGNALWIRE_SPACE'] = signalwire_space
-        os.environ['PROJECT_ID'] = project_id
-        os.environ['REST_API_TOKEN'] = rest_api_token
-    else:
-        print ("ERROR: This are not valid SignalWire API Credentials\n")
-
-    # validate what was entered and then put them into the environment
-    valid_creds = validate_signalwire_creds(signalwire_space, project_id, rest_api_token)
-    if valid_creds:
-        os.environ['SIGNALWIRE_SPACE'] = signalwire_space
-        os.environ['PROJECT_ID'] = project_id
-        os.environ['REST_API_TOKEN'] = rest_api_token
-    else:
-        print ("ERROR: This are not valid SignalWire API Credentials\n")
-
+        
+        # validate what was entered and then put them into the environment
+        valid_creds = validate_signalwire_creds(signalwire_space, project_id, rest_api_token)
+        if valid_creds:
+            os.environ['SIGNALWIRE_SPACE'] = signalwire_space
+            os.environ['PROJECT_ID'] = project_id
+            os.environ['REST_API_TOKEN'] = rest_api_token
+        else:
+            print ("ERROR: This are not valid SignalWire API Credentials\n")
 
     if len(sys.argv) > 1:
         # Sets up non-interactive mode
@@ -70,11 +81,12 @@ class MyPrompt(cmd2.Cmd):
             del sys.argv[2:]
             sys.argv.append('quit')   # Append the required 'quit' at the end
             noninteractive_flag = 1
-        elif sys.argv[1] == '-v' or sys.argv[1].lower() == '--version':
-            print ("Version: " + swish_version)
-            sys.exit()
-        else:
-            print ('''SWiSH Help Menu:
+
+            if sys.argv[1] == '-v' or sys.argv[1] == '--version':
+                print ("Version: " + swish_version)
+                sys.exit()
+            elif sys.argv[1] == '-h' or sys.argv[1] == '--help':
+                print ('''SWiSH Help Menu:
 ================
 SignalWire interactive SHell
 Cross platform command line utility and shell for administering a Space or Spaces in Signalwire
@@ -82,7 +94,7 @@ Cross platform command line utility and shell for administering a Space or Space
 -h | --help       view this help menu
 -v | --version    SWiSH version
 ''')
-            sys.exit()
+                sys.exit()
 
     else:
         def __init__(self):
@@ -633,6 +645,7 @@ Cross platform command line utility and shell for administering a Space or Space
                     # NOTE: Someday this could be expanded to return the number and the ID or something like that
                     temp_d = value
                     print (temp_d["number"])
+                print ("") # End with a blank line.
             else:
                 is_json = validate_json(output)
                 if is_json:
