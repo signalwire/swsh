@@ -25,7 +25,7 @@ class MyPrompt(cmd2.Cmd):
     # TODO/NOTE pt 2: we can add switches like --signalwire-space <spacename> to this as well
     signalwire_space, project_id, rest_api_token = get_environment()
     if signalwire_space == "" or signalwire_space is None or project_id == "" or project_id is None or rest_api_token == "" or rest_api_token is None:
-        print("\nEnvironment variables not set.  Add the following to env for automated start-up!\n\nSIGNALWIRE_SPACE=<space_name>\nPROJECT_ID=<project_id>\n<REST_API_TOKEN=<api_token>\n")
+        print("\nEnvironment variables not set.  Add the following to env for automated start-up!\n\nSIGNALWIRE_SPACE=<space_name>\nPROJECT_ID=<project_id>\nREST_API_TOKEN=<api_token>\n")
 
         if signalwire_space == "" or signalwire_space is None:
             signalwire_space = input ("\nEnter Signalwire Space: ")
