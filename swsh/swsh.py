@@ -2,8 +2,8 @@
 import cmd2
 import os
 import argparse
-from functions import *
-#from swsh.buy_a_phone_number import *
+from swsh.functions import *
+from swsh.buy_a_phone_number import *
 import json
 import time
 import re
