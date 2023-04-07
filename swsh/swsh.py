@@ -2,8 +2,8 @@
 import cmd2
 import os
 import argparse
-from swsh.functions import *
-from swsh.buy_a_phone_number import *
+from functions import *
+#from swsh.buy_a_phone_number import *
 import json
 import time
 import re
@@ -187,6 +187,7 @@ Cross platform command line utility and shell for administering a Space or Space
     sip_endpoint_parser_list = base_sip_endpoint_subparsers.add_parser('list', help='List SIP Endpoints')
     sip_endpoint_parser_list.add_argument('-i', '--id', help='List SIP Endpoint by unique SignalWire ID')
     sip_endpoint_parser_list.add_argument('-j', '--json', action='store_true', help='Output SIP Endpoint(s) in JSON format')
+    sip_endpoint_parser_list.add_argument('-n', '--name', type=str, nargs='+', help='Search for SIP Endpoint by username')
 
     # create the sip_endpoint update subcommand
     sip_endpoint_parser_update = base_sip_endpoint_subparsers.add_parser('update', help='Update a SIP Endpoint')
@@ -231,6 +232,12 @@ Cross platform command line utility and shell for administering a Space or Space
         if args.id:
             sid = args.id
             query_params="/" + sid
+        elif args.name:
+            query_params = "?"
+            if args.name:
+                name = ' '.join(args.name)
+                name = urllib.parse.quote(name)
+                query_params = query_params + "filter_username=%s&" % name
 
         output, status_code =  sip_endpoint_func(query_params)
         valid = validate_http(status_code)
