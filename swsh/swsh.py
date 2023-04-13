@@ -264,8 +264,8 @@ Cross platform command line utility and shell for administering a Space or Space
                 print("  Username:\t\t" + str(output["username"]))
                 print("  Caller Name:\t\t" + str(output["caller_id"]))
                 print("  Caller Number:\t" + str(output["send_as"]))
-                print("  Codecs:\t\t" + str(', '.join(output["codecs"])))
-                print("  Encryption Ciphers:\t" + str(', '.join(output["ciphers"])))
+                print("  Codecs:\t\t" + str(', '.join((list(filter(None, output["codecs"]))))))
+                print("  Encryption Ciphers:\t" +str(', '.join((list(filter(None, output["ciphers"]))))))
                 print("  Encrytion Enabled:\t" + str(output["encryption"]))
                 print("")
 
@@ -277,12 +277,12 @@ Cross platform command line utility and shell for administering a Space or Space
                     k_num = str(k + 1)
 
                     print(k_num + ")")
-                    print(" SignalWire ID:\t" + str(output["data"][k]["id"]))
+                    print(" SignalWire ID:\t\t" + str(output["data"][k]["id"]))
                     print(" Username:\t\t" + str(output["data"][k]["username"]))
                     print(" Caller ID Name:\t" + str(output["data"][k]["caller_id"]))
                     print(" Caller ID Number:\t" + str(output["data"][k]["send_as"]))
-                    print(" Codecs:\t\t" + str(', '.join(output["data"][k]["codecs"])))
-                    print(" Encryption Ciphers:\t" + str(', '.join(output["data"][k]["ciphers"])))
+                    print(" Codecs:\t\t" + str(', '.join((list(filter(None, output["data"][k]["codecs"]))))))
+                    print(" Encryption Ciphers:\t" + str(', '.join((list(filter(None, output["data"][k]["ciphers"]))))))
                     print(" Encrytion Enabled:\t" + str(output["data"][k]["encryption"]))
                     print("")
    
