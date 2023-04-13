@@ -181,7 +181,7 @@ Cross platform command line utility and shell for administering a Space or Space
     sip_endpoint_parser_update.add_argument('-p', '--password', help='update password of the sip endpoint')
     sip_endpoint_parser_update.add_argument('-s', '--send-as',  help='default caller id for sip endpoint (Must belong to the Project!)')
     sip_endpoint_parser_update.add_argument('-c', '--caller-id', nargs='+', help='Friendly Caller ID Name (SIP to SIP only)' )
-    sip_endpoint_parser_update.add_argument('-i', '--id', help='Unique id of the SIP Endpoint to be deleted')
+    sip_endpoint_parser_update.add_argument('-i', '--id', help='Unique id of the SIP Endpoint to be updated')
     sip_endpoint_parser_update.add_argument('-e', '--encryption', type=str, help='Default Codecs', choices=['default', 'required', 'optional'])
     sip_endpoint_parser_update.add_argument('--codecs', type=str, nargs='+', help='Default Codecs', choices=['OPUS', 'G722', 'PCMU', 'PCMA', 'VP8', 'H264'])
     sip_endpoint_parser_update.add_argument('--ciphers', type=str, nargs='+',  help='Default Ciphers', choices=['AEAD_AES_256_GCM_8','AES_256_CM_HMAC_SHA1_80','AES_CM_128_HMAC_SHA1_80','AES_256_CM_HMAC_SHA1_32','AES_CM_128_HMAC_SHA1_32'])
