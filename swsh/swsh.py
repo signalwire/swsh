@@ -202,6 +202,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # but that may return multiple results.  Would need to write some guardrails around that.
     # For now just leaving with having provide the SID.
     sip_endpoint_parser_delete.add_argument('-i', '--id', help='Unique id of the SIP Endpoint', required=True)
+    sip_endpoint_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete of SIP Endpoint')
 
     ## subcommand functions for sip_endpoint
     def sip_endpoint_list(self, args):
@@ -376,8 +377,12 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/" + sid
         if sid is not None:
-            confirm = input("Remove SIP Endpoint " + sid + "? This cannot be undone! (y/n): " )
-            if (confirm == "Y" or confirm == "y"):
+            if not args.force:
+                confirm = input("Remove SIP Endpoint " + sid + "? This cannot be undone! (y/n): " )
+            else:
+                confirm = 'y'
+
+            if confirm.lower() == "yes" or confirm.lower() == "y":
                 output, status_code = sip_endpoint_func(query_params, "DELETE")
                 valid = validate_http(status_code)
                 if valid:
@@ -553,9 +558,10 @@ Cross platform command line utility and shell for administering a Space or Space
     phone_number_parser_update.add_argument('--message-relay-context', help='The name of the relay context to send this message when using the relay_context message handler')
 
     # create the phone_number release subcommand
-    phone_number_parser_release = base_phone_number_subparsers.add_parser('release', help='release/Remove a Phone Number')
-    phone_number_parser_release.add_argument('-i', '--id', help='The SignalWire ID of the number that is being Released (removed)')
-    phone_number_parser_release.add_argument('-n', '--number', help='Number to be released (removed)')
+    phone_number_parser_release = base_phone_number_subparsers.add_parser('release', help='Release/Remove a Phone Number')
+    phone_number_parser_release.add_argument('-i', '--id', help='The SignalWire ID of the number that is being Released (Removed)')
+    phone_number_parser_release.add_argument('-n', '--number', help='Number to be Released (Removed)')
+    phone_number_parser_release.add_argument('-f', '--force', action='store_true', help='Force release.  Will not ask to confirm release of Phone Number')
 
     # create the phone_number lookup sub
     phone_number_parser_lookup = base_phone_number_subparsers.add_parser('lookup', help='Lookup a Phone Number (in E.164 format)')
@@ -754,8 +760,13 @@ Cross platform command line utility and shell for administering a Space or Space
             print("A valid SignalWire ID or Phone Number is required.\n")
 
         query_params = "/" + sid
-        confirm = str(input("Are you sure you want to proceed removing id " + sid + "?  This cannot be undone! (Y/n): " ))
-        # Need validation here.  There are times when the number is too new to be released.  Would be nice to be able to relay that.
+        if not args.force:
+            confirm = str(input("Are you sure you want to proceed removing id " + sid + "?  This cannot be undone! (Y/n): " ))
+        else:
+            confirm = "y"
+
+        # TODO: There are times when the number is too new to be released.
+        # It Would be nice to be able to relay that to the user
         if confirm.lower() == "yes" or confirm.lower() == "y":
             output, status_code = phone_number_func(query_params, "DELETE")
             valid = validate_http(status_code)
@@ -855,6 +866,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # create the laml_bin delete subcommand
     laml_bin_parser_delete = base_laml_bin_subparsers.add_parser('delete', help='Delete/Remove a LaML Bin')
     laml_bin_parser_delete.add_argument('-i', '--id', help='SignalWire ID of the LaML Bin to be deleted')
+    laml_bin_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete of LaML Bin')
 
     # Note: Adding contents on the command line via create and update isn't quite working right
     # because of character escaping it does on  newlines and tabs.
@@ -1059,7 +1071,11 @@ Cross platform command line utility and shell for administering a Space or Space
 
         sid = args.id
         query_params = '/' + sid
-        confirm = str(input("Are you sure you want to proceed removing this LaML Bin?  This cannot be undone (Y/n): "))
+        if not args.force:
+            confirm = str(input("Are you sure you want to proceed removing this LaML Bin?  This cannot be undone (Y/n): "))
+        else:
+            confirm = "y"
+
         if confirm.lower() == "yes" or confirm.lower() == "y":
             output, status_code = laml_bin_func( query_params, "DELETE" )
             valid = validate_http(status_code)
@@ -1369,8 +1385,9 @@ Cross platform command line utility and shell for administering a Space or Space
 
 
     # create the laml_app delete command
-    laml_app_parser_delete = base_laml_app_subparsers.add_parser('delete', help='List Domain Applications for the Project')
-    laml_app_parser_delete.add_argument('-i', '--id', help='Unique id of the SIP Endpoint', required=True)
+    laml_app_parser_delete = base_laml_app_subparsers.add_parser('delete', help='Delete LaML Applications for Project')
+    laml_app_parser_delete.add_argument('-i', '--id', help='Unique id of the LaML Application', required=True)
+    laml_app_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete of LaML Applications')
 
     def laml_app_list(self, args):
         '''list subcommand of laml_app'''
@@ -1601,7 +1618,11 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/" + sid
         if sid is not None:
-            confirm = input("Remove LaML Application " + sid + "?  This cannot be undone! (y/n): ")
+            if not args.force:
+                confirm = input("Remove LaML Application " + sid + "?  This cannot be undone! (y/n): ")
+            else:
+                confirm = "y"
+
             if (confirm.lower() == "y" or confirm.lower() == "yes"):
                 output, status_code = laml_app_func(query_params, req_type="DELETE")
                 valid = validate_http(status_code)
@@ -1972,6 +1993,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # create the domain application delete command
     number_group_parser_delete = base_number_group_subparsers.add_parser('delete', help='Delete Number Groups for the Project')
     number_group_parser_delete.add_argument('-i', '--id', help='Unique id of the Number Group to be removed', required=True)
+    number_group_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete of Number Groups')
 
     def number_group_list(self, args):
         '''list subcommand of number_group'''
@@ -2110,7 +2132,11 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/" + sid
         if sid is not None:
-            confirm = input("Remove Number Group " + sid + "? This cannot be undone! (y/n): " )
+            if not args.force:
+                confirm = input("Remove Number Group " + sid + "? This cannot be undone! (y/n): " )
+            else:
+                confirm = "y"
+
             if (confirm == "Y" or confirm == "y"):
                 output, status_code = number_group_func(query_params, req_type="DELETE")
                 valid = validate_http(status_code)
@@ -2167,6 +2193,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # create the fifo_queue delete subcommand
     fifo_queue_parser_delete = base_fifo_queue_subparsers.add_parser('delete', help='Delete/Remove a FIFO Queue')
     fifo_queue_parser_delete.add_argument('-i', '--id', help='SignalWire ID of the FIFO Queue to be deleted')
+    fifo_queue_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete of FIFO Queue')
 
     def fifo_queue_list(self, args):
         '''list subcommand of fifo_queue '''
@@ -2330,7 +2357,11 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/Queues/" + sid
         if sid is not None:
-            confirm = input("Remove FIFO Queue " + sid + "?  This cannot be undone! (Y/n): ")
+            if not args.force:
+                confirm = input("Remove FIFO Queue " + sid + "?  This cannot be undone! (Y/n): ")
+            else:
+                confirm = "y"
+
             if confirm.lower() == "yes" or confirm.lower() == "y":
                 output, status_code = fifo_queue_func(query_params, "DELETE")
                 valid = validate_http(status_code)
@@ -2505,6 +2536,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # create the fax delete command
     fax_parser_delete = base_fax_subparsers.add_parser('delete', help='Delete Faxes')
     fax_parser_delete.add_argument('-id', '--id', type=str, help='Delete a fax record by SignalWire ID')
+    fax_parser_delete.add_argument('-f', '--force', action='store_true', help='Force removal.  Will not ask to confirm delete Fax record')
 
     def fax_list(self, args):
         '''list subcommand of fax'''
@@ -2659,7 +2691,11 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/Faxes/" + sid
         if sid is not None:
-            confirm = input("Remove FAX " + sid + "?  This cannot be undone! (Y/n): ")
+            if not args.force:
+                confirm = input("Remove FAX " + sid + "?  This cannot be undone! (Y/n): ")
+            else:
+                confirm = "y"
+
             if confirm.lower() == "yes" or confirm.lower() == "y":
                 output, status_code = fax_func(query_params, "DELETE")
                 valid = validate_http(status_code)
