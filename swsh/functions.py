@@ -215,6 +215,19 @@ def get_shell_env_all():
             print(k + "=" + v)
         print("")
 
+def change_verify(template, lines):
+    changed = 1   # default changed to true; assume the user made a change
+    text = ""
+
+    for line in lines:
+        text = text + line
+
+    if text == template:
+        # There were no changes, set back to 0
+        changed = 0
+
+    return changed
+
 def json_nice_print(j):
     if len(j) == 0:
         print("No Results Found!")
