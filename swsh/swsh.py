@@ -16,9 +16,11 @@ class MyPrompt(cmd2.Cmd):
 
     global noninteractive_flag
     global swish_version
+    global EDITOR
 
     noninteractive_flag = 0
     swish_version = "1.0"
+    EDITOR = os.environ.get('EDITOR', 'pyvim')
 
     # Verify the OS env is set.  Ask for input if not.
     # TODO/NOTE: This does not export the vars for future use.  This may be something to push into a .swsh file at some point
@@ -954,22 +956,29 @@ Cross platform command line utility and shell for administering a Space or Space
 
         # Arg lists Needs to be converted into strings before they can be url encoded.
         if args.contents is None:
-            # NOTE: There may be a better way to check whether or not the file was changed, than using system calls to sha1sum.
-            # However, just looking for the basic functionality at this point.  If the editor is opened, and nothing changes, don't create anything.
-            # IF something DOES change in the XML, then push to the API call.
-            laml_sha1_orig = os.popen( "sha1sum /tmp/.foo_laml.xml.orig" ).read()  # the sha1sum of the original template
-            os.system( "cp /tmp/.foo_laml.xml.orig /tmp/foo_laml.xml")
-            os.system( "${VISUAL} /tmp/foo_laml.xml" )
-            laml_sha1_new = os.popen( "sha1sum /tmp/foo_laml.xml").read()          # sha1sum after any changes
-            if laml_sha1_orig != laml_sha1_new:
-                with open('/tmp/foo_laml.xml') as f:
-                    lines = f.readlines()
-                    #print(lines)
+            template = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+</Response>"""
+
+            with open('laml.xml', 'w') as lb:
+                lb.write(template)
+                lb.close()
+
+            os.system("%s laml.xml" % EDITOR)
+
+            with open('laml.xml', 'r') as lb:
+                lines = lb.readlines()
+                changed = change_verify(template, lines)
+
+                if changed == 0:
+                    #Nothing changed.  Exit gracefully and don't create the laml_bin
+                    print("Exited.  Nothing to create.\n")
+                    return
+                else:
                     args.contents = lines
-                    # Delete the new file, its no longer needed
-                    os.system( "rm /tmp/foo_laml.xml")
-            else:
-                args.contents=""
+
+                lb.close()
+                os.remove('laml.xml')
 
         # if contents is still blank, then nothing has changed, and exit gracefully
         if args.contents == "":
@@ -1006,25 +1015,35 @@ Cross platform command line utility and shell for administering a Space or Space
         sid = args.id
         query_params = "/" + sid
         if args.contents is None:
-            # Get the LaML bin to Edit and save it to a temp file
+            # Get the LaML bin to Edit and store it in a file temporarily for editing
             query_params = "/" + sid
             output, status_code =  laml_bin_func(query_params)
-            valid = validate_http(status_code)  # We can probably get away without validating here, but may as well
+            valid = validate_http(status_code)
             if valid:
                 output_json = json.loads(output)
                 output_laml_bin_contents = output_json["contents"]
-                filename = '/tmp/%s.xml' % sid
-                with open(filename, 'w')  as f:
-                    print(output_laml_bin_contents, file=f)
-                sha1_hash_orig = os.popen( "sha1sum %s | awk '{print $1}'" % filename ).read()
-                os.system( "${VISUAL} %s" % filename )
-                sha1_hash_new = os.popen( "sha1sum %s | awk '{print $1}'" % filename ).read()
+                filename = '%s.xml' % sid
+                template = output_laml_bin_contents.strip()
 
-                if sha1_hash_orig != sha1_hash_new:
-                    with open(filename) as f:
-                        lines = f.readlines()
+                with open(filename, 'w+') as lb:
+                    print(output_laml_bin_contents, file=lb)
+                    lb.close()
+
+                os.system("%s %s" % (EDITOR, filename))
+
+                with open (filename, 'r') as lb:
+                    lines = lb.readlines()
+                    changed = change_verify(template, lines)
+
+                    if changed == 0:
+                        # Nothing changed.  Exit gracefull and don't update the laml_bin
+                        print("Exited.  Nothing to update.\n")
+                        return
+                    else:
                         args.contents = lines
-                        os.system( "rm %s" % filename )
+
+                    lb.close()
+                    os.remove('%s' % filename)
             else:
                 print ("Error: Something bad happened")
 

@@ -14,7 +14,7 @@ CLASSIFIERS = [
 
 setup(
   name='swsh',
-  version='0.1.9',
+  version='0.1.10',
   description='SignalWire interactive SHell',
   entry_points={
     'console_scripts': ['swsh=swsh.swsh:main']
@@ -33,7 +33,8 @@ setup(
     'cmd2',
     #'setuptools',
     #'pygments==2.14.0',
-    'gnureadline;platform_system=="Darwin"'
+    'gnureadline;platform_system=="Darwin"',
+    'pyvim'
   ],
   python_requires='>=3.6',
   zip_safe=False
