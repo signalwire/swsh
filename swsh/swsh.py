@@ -121,24 +121,23 @@ Cross platform command line utility and shell for administering a Space or Space
 
         prompt = 'swsh> '
         intro = '''
-####################################################################
-#                                                                  #
-#       _______.____    __    ____  __       _______. __    __     #
-#      /       |\   \  /  \  /   / |  |     /       ||  |  |  |    #
-#     |   (----` \   \/    \/   /  |  |    |   (----`|  |__|  |    #
-#      \   \      \            /   |  |     \   \    |   __   |    #
-#  .----)   |      \    /\    /    |  | .----)   |   |  |  |  |    #
-#  |_______/        \__/  \__/     |__| |_______/    |__|  |__|    #
-#                                                                  #
-#      Welcome to SWiSH: The SignalWire interactive Shell          #
-####################################################################
+##################################################################
+#                                                                #
+#         _______.____    __    ____   _______. __    __         #
+#        /       |\   \  /  \  /   /  /       ||  |  |  |        #
+#       |   (----` \   \/    \/   /  |   (----`|  |__|  |        #
+#        \   \      \            /    \   \    |   __   |        #
+#    .----)   |      \    /\    / .----)   |   |  |  |  |        #
+#    |_______/        \__/  \__/  |_______/    |__|  |__|        #
+#                                                                #
+#                                                                #
+#      Welcome to swsh: The SignalWire interactive Shell         #
+##################################################################
 '''
 
     def default(self, line):
         # Am I setting a Shell var?
         if "=" in line.command:
-            # Append to command history
-            #self.history.append(line.command)
 
             set_shell_env(line.command)
             return
