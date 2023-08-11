@@ -215,6 +215,30 @@ def get_shell_env_all():
             print(k + "=" + v)
         print("")
 
+def is_env_var(args):
+    for arg in vars(args):
+        arg_value = getattr(args, arg)
+
+        # NOTE:  Lists need to be treated differently than strings
+        # This affects commands were nargs=+
+        # This does currently only account for the first entry in a list, but the env only supports 1=1 in this iteration.
+        # Eventually this should change to allow vars to equal any number of strings inside quotes.
+        if type(arg_value) == list:
+            val = arg_value[0]
+            v = str(val)
+            if v and v.startswith("$"):
+                v = v.strip("$")
+                new_arg = [ get_shell_env(v) ]
+                setattr(args, arg, new_arg)
+        else:
+            arg_value = str(arg_value)
+            if arg_value and arg_value.startswith("$"):
+                val = arg_value.strip("$")
+                new_arg = get_shell_env(val)
+                setattr(args, arg, new_arg)
+
+    return (args)
+
 def change_verify(template, lines):
     changed = 1   # default changed to true; assume the user made a change
     text = ""

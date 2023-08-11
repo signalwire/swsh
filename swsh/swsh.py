@@ -134,6 +134,15 @@ Cross platform command line utility and shell for administering a Space or Space
 ####################################################################
 '''
 
+    def default(self, line):
+        # Am I setting a Shell var?
+        if "=" in line.command:
+            # Append to command history
+            #self.history.append(line.command)
+
+            set_shell_env(line.command)
+            return
+
     def do_exit(self, inp):
         # Thank user on exit, unless noninteractive_flag is true
         if noninteractive_flag == 1:
@@ -209,14 +218,8 @@ Cross platform command line utility and shell for administering a Space or Space
     ## subcommand functions for sip_endpoint
     def sip_endpoint_list(self, args):
         '''list subcommand of sip_endpoint'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
-                
+        args = is_env_var(args)  # Replace any env vars in the command string
+
         query_params = ""
         if args.id:
             sid = args.id
@@ -246,7 +249,7 @@ Cross platform command line utility and shell for administering a Space or Space
                     else:
                         value = str(v)
 
-                    set_shell_env(key + "=" + value)
+                    #set_shell_env(key + "=" + value)
 
                 print(k_val + ")")
                 print("  SignalWire ID:\t" + str(output["id"]))
@@ -284,13 +287,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def sip_endpoint_create(self, args):
         '''create subcommand of sip_endpoint'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = ""
         sip_endpoint_dictionary = {
@@ -325,13 +322,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def sip_endpoint_update(self, args):
         '''update subcommand of sip_endpoint'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -368,13 +359,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def sip_endpoint_delete(self, args):
         '''delete subcommand of sip_endpoint'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -437,13 +422,7 @@ Cross platform command line utility and shell for administering a Space or Space
     ## subcommand functions for sip_profile
     def sip_profile_list(self, args):
         '''list subcommand of sip_profile'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         output, status_code = sip_profile_func()
         valid = validate_http(status_code)
@@ -472,13 +451,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def sip_profile_update(self, args):
         '''update subcommand of sip_profile'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sip_profile_dictionary = {
           "domain_identifier": args.domain_identifier,
@@ -577,13 +550,7 @@ Cross platform command line utility and shell for administering a Space or Space
     ## subcommand functions for phone numbers
     def phone_number_list(self, args):
         '''list subcommand of phone_number'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.json:
             output, status_code = phone_number_func()
@@ -657,13 +624,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def phone_number_update(self, args):
         '''Update subcommand of phone_number'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         # NOTE: I found that if the number DOES NOT have a name, the API won't allow it to be udpated and will require a name.  After that, it is no longer needed.
         # An ID or Number are required.
@@ -738,13 +699,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def phone_number_release(self, args):
         '''Release subcommand of phone_number'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.id:
             sid = args.id
@@ -790,13 +745,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def phone_number_lookup(self, args):
         '''lookup subcommand of phone_number'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         # TODO: Refactor this command using new(er) functions
         # Verify its a 10 digit US number in e.164 format.
@@ -877,13 +826,7 @@ Cross platform command line utility and shell for administering a Space or Space
     ## subcommand functions for laml bins
     def laml_bin_list(self, args):
         '''list subcommand of laml_bin'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = ""
         if args.name:
@@ -946,13 +889,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_bin_create(self, args):
         '''create subcommand of laml_bin'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         # Arg lists Needs to be converted into strings before they can be url encoded.
         if args.contents is None:
@@ -1004,13 +941,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_bin_update(self, args):
         '''create subcommand of laml_bin'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -1080,13 +1011,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_bin_delete(self, args):
         '''create subcommand of laml_bin'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = '/' + sid
@@ -1206,13 +1131,7 @@ Cross platform command line utility and shell for administering a Space or Space
     # Subcommand functions for project
     def project_list(self, args):
         '''list subcommand of project'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.name:
             if len(args.name) == 1:
@@ -1410,13 +1329,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_app_list(self, args):
         '''list subcommand of laml_app'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.id:
             sid = args.id
@@ -1494,13 +1407,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_app_create(self, args):
         '''create subcommand of laml_app'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         FriendlyName = ""
         MessageStatusCallback = ""
@@ -1564,13 +1471,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def laml_app_update(self, args):
         '''update subcommand of laml_app'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -1737,13 +1638,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def domain_application_list(self, args):
         '''list subcommand of domain_application'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.domain:
             if len(args.domain) == 1:
@@ -1837,13 +1732,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def domain_application_create(self, args):
         '''create subcommand of domain_application'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         # Make the Name look nice
         if args.name:
@@ -1890,13 +1779,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def domain_application_update(self, args):
         '''create subcommand of domain_application'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -1943,13 +1826,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def domain_application_delete(self, args):
         '''delete subcommand of domain_application'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -2016,13 +1893,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def number_group_list(self, args):
         '''list subcommand of number_group'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         if args.name:
             if len(args.name) == 1:
@@ -2076,13 +1947,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def number_group_create(self, args):
         '''create subcommand of number_group'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         number_group_dictionary = {
           "name": args.name,
@@ -2106,13 +1971,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def number_group_update(self, args):
         '''update subcommand of number_group'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -2140,13 +1999,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def number_group_delete(self, args):
         '''delete subcommand of number_group'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/" + sid
@@ -2216,13 +2069,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fifo_queue_list(self, args):
         '''list subcommand of fifo_queue '''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = "/Queues"
         if args.id:
@@ -2248,7 +2095,7 @@ Cross platform command line utility and shell for administering a Space or Space
                     else:
                         value = str(v)
 
-                    set_shell_env(key + "=" + value)
+                    #set_shell_env(key + "=" + value)
 
                 print(k_num + ")")
                 print("  SignalWire ID:\t" + str(output["sid"]))
@@ -2286,13 +2133,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fifo_queue_create(self, args):
         '''list subcommand of fifo_queue '''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params="/Queues"
 
@@ -2322,13 +2163,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fifo_queue_update(self, args):
         '''list subcommand of fifo_queue '''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = "/Queues"
 
@@ -2365,13 +2200,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fifo_queue_delete(self, args):
         '''delete subcommand of fifo_queue'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/Queues/" + sid
@@ -2559,13 +2388,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fax_list(self, args):
         '''list subcommand of fax'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = "/Faxes"
         if args.id:
@@ -2609,13 +2432,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fax_update(self, args):
         '''update subcommand of fax'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         query_params = "/Faxes"
 
@@ -2699,13 +2516,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def fax_delete(self, args):
         '''delete subcommand of fax'''
-        for arg in vars(args):
-            arg_val = str(getattr(args, arg))
-            if arg_val and arg_val.startswith("$"):
-                # Get env var
-                var = getattr(args, arg).strip("$")
-                new_arg=get_shell_env(var)
-                setattr(args, arg, new_arg)
+        args = is_env_var(args)  # Replace any env vars in the command string
 
         sid = args.id
         query_params = "/Faxes/" + sid
@@ -2750,7 +2561,7 @@ Cross platform command line utility and shell for administering a Space or Space
 
 ##
 def main():
-    MyPrompt().cmdloop() 
+    MyPrompt().cmdloop()
 
 if __name__ == '__main__':
     main()
