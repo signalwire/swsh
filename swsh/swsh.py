@@ -2255,6 +2255,8 @@ Cross platform command line utility and shell for administering a Space or Space
     @cmd2.with_argparser(call_parser_make)
     def do_send_call(self, args: argparse.Namespace):
         '''Send an outbound call'''
+        args = is_env_var(args)
+
         from_no = "From=" + urllib.parse.quote(args.from_num)
         to_no = "&To=" + urllib.parse.quote(args.to_num)
         # TODO: validate whether or not there is a URL there.  There may be other situtations where URL is not necessary.
@@ -2336,6 +2338,8 @@ Cross platform command line utility and shell for administering a Space or Space
     def do_send_text(self, args: argparse.Namespace):
         '''Send an SMS Text Message'''
         # TODO: Move this into the functions file
+        args = is_env_var(args)
+
         signalwire_space, project_id, rest_api_token = get_environment()
         from_no = args.from_num
         to_no = args.to_num
@@ -2463,6 +2467,8 @@ Cross platform command line utility and shell for administering a Space or Space
         # TODO: Long term I would like to be able to upload a PDF to wirestarter
         #       and wirestarter will just take the file, add it to the webserver, and figure out the URL to send.
         #       This is just a Phase 1 iteration.
+        args = is_env_var(args)
+
         signalwire_space, project_id, rest_api_token = get_environment()
         from_no = args.from_num
         to_no = args.to_num
