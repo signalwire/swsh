@@ -246,7 +246,7 @@ def change_verify(template, lines):
     for line in lines:
         text = text + line
 
-    if text == template:
+    if text.strip() == template:
         # There were no changes, set back to 0
         changed = 0
 

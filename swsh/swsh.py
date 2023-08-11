@@ -802,14 +802,14 @@ Cross platform command line utility and shell for administering a Space or Space
     laml_bin_parser_list.add_argument('-i', '--id', help='List Single LaML Bin by SignalWire ID')
     laml_bin_parser_list.add_argument('-j', '--json', action='store_true', help='List LaML Bins in JSON format')
 
-    # create the laml_bin update subcommand
+    # create the laml_bin create subcommand
     laml_bin_parser_create = base_laml_bin_subparsers.add_parser('create', help='Create a LaML Bins')
     laml_bin_parser_create.add_argument('-n', '--name', nargs='+', help='Identifiable name of the LaML Bin', required=True)
     laml_bin_parser_create.add_argument('--contents',  nargs='+', help='XML contents of the LaML Bin.  Put formatted XML in single quotes, or leave blank to use an editor')
 
     # create the laml_bin update subcommand
     laml_bin_parser_update = base_laml_bin_subparsers.add_parser('update', help='Update a LaML Bins')
-    laml_bin_parser_update.add_argument('-i', '--id', help='SignalWire ID of the LaML Bin')
+    laml_bin_parser_update.add_argument('-i', '--id', help='SignalWire ID of the LaML Bin', required=True)
     laml_bin_parser_update.add_argument('-n', '--name', nargs='+', help='Identifiable name of the LaML Bin')
     laml_bin_parser_update.add_argument('--contents', nargs='+', help='XML contents of the LaML Bin.  Put formatted XML in single quotes, or leave blank to use an editor')
 
