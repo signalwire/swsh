@@ -14,7 +14,7 @@ CLASSIFIERS = [
 
 setup(
   name='swsh',
-  version='0.1.10',
+  version='0.1.11',
   description='SignalWire interactive SHell',
   entry_points={
     'console_scripts': ['swsh=swsh.swsh:main']

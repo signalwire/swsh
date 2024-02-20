@@ -508,7 +508,7 @@ Cross platform command line utility and shell for administering a Space or Space
     phone_number_parser_update.add_argument('-i', '--id', help='ID of the SignalWire Phone Number')
     phone_number_parser_update.add_argument('-N', '--number', help='The phone number being updated')
     phone_number_parser_update.add_argument('-n', '--name', nargs='+', help='Update the Friendly Name of a Phone Number')
-    phone_number_parser_update.add_argument('--call-handler', help='Type of handlers to use when processing calls to the Number', choices=["relay_context", "laml_webhooks", "laml_application", "dialogflow", "relay_connector", "relay_sip_endpoint", "relay_verto_endpoint", "video_room"])
+    phone_number_parser_update.add_argument('--call-handler', help='Type of handlers to use when processing calls to the Number', choices=["relay_context", "laml_webhooks", "laml_application", "dialogflow", "relay_connector", "relay_sip_endpoint", "relay_script", "relay_verto_endpoint", "video_room"])
     phone_number_parser_update.add_argument('--call-receive-mode', help='How to receive the incoming call: Voice or Fax', choices=["voice", "fax"], default="voice")
     phone_number_parser_update.add_argument('--call-request-url', help='URL to make a request when using the laml_webhooks call handler')
     phone_number_parser_update.add_argument('--call-request-method', help='HTTP method type when using laml_webhook call handler', choices=["POST", "GET"], default="POST")
@@ -520,6 +520,7 @@ Cross platform command line utility and shell for administering a Space or Space
     phone_number_parser_update.add_argument('--call-dialogflow-id', help='ID of the Dialogflow Agent to start when using the dialogflow call handler')
     phone_number_parser_update.add_argument('--call-relay-context', help='The name of the Relay Context to send this call to when using the relay_context call handler')
     phone_number_parser_update.add_argument('--call-relay-connector-id', help='ID of the Relay Connector to send this call to when using the relay_connector call hanlder')
+    phone_number_parser_update.add_argument('--call-relay-script-url', help='URL of the Relay Bin / SWML script')
     phone_number_parser_update.add_argument('--call-sip-endpoint-id', help='ID of the SIP Endpoint to send this call to when using the sip_endpoint call handler')
     phone_number_parser_update.add_argument('--call-verto-resourece', help='The name of the Verto Relay endpoint to send this call to when using the relay_verto_endpoint handler')
     phone_number_parser_update.add_argument('--call-video-room-id', help='The OD of the Video Room to send this call to when using the video_room call handler')
@@ -660,6 +661,7 @@ Cross platform command line utility and shell for administering a Space or Space
           "call_dialogflow_id": args.call_dialogflow_id,
           "call_relay_context": args.call_relay_context,
           "call_relay_connector_id": args.call_relay_connector_id,
+          "call_relay_script_url": args.call_relay_script_url,
           "call_sip_endpoint_id": args.call_sip_endpoint_id,
           "call_verto_resourece": args.call_verto_resourece,
           "call_video_room_id": args.call_video_room_id,
