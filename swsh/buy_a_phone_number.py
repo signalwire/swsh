@@ -71,6 +71,14 @@ def buy_a_phone_number():
         # TODO: validate a legit response here.
         response_json = json.loads(response.text)
         sid = (response_json["id"])
+
+        # Hacky, work-around to set the name of the purchased number to the Number.
+        # if the name isn't set, trying to update anything else won't work until the name is set.
+        # Just setting it to the phone number for now, and can be changed later via swsh, api, ui, etc.
+        destination = f"phone_numbers/{sid}"
+        payload = '{ "name": "%s" }' % tn_selected
+        response = http_request(signalwire_space, project_id, rest_api_token, destination, "PUT", payload=payload, headers=headers)
+
         print ("Congratulations!  You have just added " + tn_selected + " to your SignalWire project!")
         print ("The SignalWire ID of that number is " + sid + ".  Use it to start building cool stuff!")
     else:

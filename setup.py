@@ -14,7 +14,7 @@ CLASSIFIERS = [
 
 setup(
   name='swsh',
-  version='0.1.11',
+  version='0.1.14',
   description='SignalWire interactive SHell',
   entry_points={
     'console_scripts': ['swsh=swsh.swsh:main']
@@ -22,7 +22,7 @@ setup(
   #long_description=read('README.md'),
   long_description_content_type="text/markdown",
   classifiers=CLASSIFIERS,
-  url='https://github.com/signalwire/swish',
+  url='https://github.com/signalwire/swsh',
   author='Shane Harrell',
   author_email='shane.harrell@signalwire.com',
   license='MIT',
