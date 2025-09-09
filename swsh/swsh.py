@@ -2,8 +2,7 @@
 import cmd2
 import os
 import argparse
-from swsh.functions import *
-from swsh.buy_a_phone_number import *
+import subprocess
 import json
 import time
 import re
@@ -11,8 +10,19 @@ import urllib.parse
 from signalwire.rest import Client as signalwire_client
 
 
+from functions import *
+#from buy_a_phone_number import *
+
+
+# Import modular command classes
+from commands.base import CommandMixin
+from commands.sip_endpoint import SipEndpointCommand
+from commands.phone_number import PhoneNumberCommand
+from commands.laml_bin import LamlBinCommand
+
+
 ###########################################################################
-class MyPrompt(cmd2.Cmd):
+class MyPrompt(cmd2.Cmd, CommandMixin):
 
     global noninteractive_flag
     global swish_version
@@ -118,6 +128,9 @@ Cross platform command line utility and shell for administering a Space or Space
             #del cmd2.Cmd.do_set    # Eventually I'd like to remove this, but for now leaving on, because it can toggle debug mode on.
             del cmd2.Cmd.do_ipy
             del cmd2.Cmd.do_py
+            
+            # Initialize modular commands
+            self._init_modular_commands()
 
         prompt = 'swsh> '
         intro = '''
@@ -158,7 +171,11 @@ Cross platform command line utility and shell for administering a Space or Space
 
     def do_clear(self, inp):
         '''Clear the Screen'''
-        os.system("clear")
+        try:
+            subprocess.run(['clear'], check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            # Fallback for systems where 'clear' command is not available
+            print('\033[H\033[J', end='')
 
     def do_echo(self, inp):
         '''echo something'''
@@ -173,6 +190,52 @@ Cross platform command line utility and shell for administering a Space or Space
     def do_env(self, args):
         '''Return the SWiSH Environment Variables'''
         get_shell_env_all()
+    
+    def _init_modular_commands(self):
+        '''Initialize modular command instances'''
+        # Create command instances
+        self.sip_endpoint_cmd = SipEndpointCommand(self)
+        self.phone_number_cmd = PhoneNumberCommand(self)
+        self.laml_bin_cmd = LamlBinCommand(self)
+        
+        # Register command handlers
+        self.sip_endpoint_parser = self.sip_endpoint_cmd.get_parser()
+        self.phone_number_parser = self.phone_number_cmd.get_parser()
+        self.laml_bin_parser = self.laml_bin_cmd.get_parser()
+
+    def do_sip_endpoint(self, args):
+        '''List, Create, Update, Delete SIP Endpoints'''
+        if hasattr(self, 'sip_endpoint_cmd'):
+            # Parse arguments using the command's parser
+            try:
+                parsed_args = self.sip_endpoint_parser.parse_args(args.split())
+                self.sip_endpoint_cmd.handle_command(parsed_args)
+            except SystemExit:
+                pass  # argparse calls sys.exit on errors, which we catch here
+        else:
+            print("SIP Endpoint command not initialized")
+
+    def do_phone_number(self, args):
+        '''List, Update, Release, Lookup, Buy Phone Numbers'''
+        if hasattr(self, 'phone_number_cmd'):
+            try:
+                parsed_args = self.phone_number_parser.parse_args(args.split())
+                self.phone_number_cmd.handle_command(parsed_args)
+            except SystemExit:
+                pass
+        else:
+            print("Phone Number command not initialized")
+
+    def do_laml_bin(self, args):
+        '''List, Create, Update, Delete LaML Bins'''
+        if hasattr(self, 'laml_bin_cmd'):
+            try:
+                parsed_args = self.laml_bin_parser.parse_args(args.split())
+                self.laml_bin_cmd.handle_command(parsed_args)
+            except SystemExit:
+                pass
+        else:
+            print("LaML Bin command not initialized")
 
 ## SIP ENDPOINT COMMAND ##
     # Create the top level parser for sip endpoints: sip_endpoint

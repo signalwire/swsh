@@ -3,7 +3,12 @@ import base64
 import requests
 import os,sys
 import json
-#from pygments import highlight, lexers, formatters
+
+# Syntax Highlighting
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import Terminal256Formatter
+
 ####
 
 env_var_dict = {}
@@ -271,6 +276,9 @@ def encode_auth(project_id, rest_api_token):
 
     return base64_auth
 
+
+
+# TODO: Revisit all of this:
 def validate_http(status_code):
     # Validate an API response, and determine if it is an error
     # Keeping track of 2XX codes I've seen.  Maybe these need to be passed w/ specific calls for validation.
