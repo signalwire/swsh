@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from sys import api_version
 import cmd2
 import json
 import urllib.parse
