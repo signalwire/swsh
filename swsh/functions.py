@@ -51,11 +51,11 @@ def phone_number_lookup(query_params):
 ########################################
 ######## SIP ENDPOINT FUNCTIONS ########
 ########################################
-def sip_endpoint_func( query_params="", req_type="GET", headers={}, payload={} ):
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "endpoints/sip" + query_params
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-    return (response.text, response.status_code)
+# def sip_endpoint_func( query_params="", req_type="GET", headers={}, payload={} ):
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "endpoints/sip" + query_params
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
+#     return (response.text, response.status_code)
 
 ########################################
 ############ SIP PROFILE ###############
@@ -317,38 +317,26 @@ def print_error_json_compatibility(error_json):
 
     print ("API ERROR -- " + status + ": " + message + "\n")
 
-def http_request(signalwire_space, project_id, rest_api_token, destination, req_type, payload={}, headers={}, url="", query_params=""):
+def http_request(destination, req_type, payload={}, headers={}, query_params=""):
+    signalwire_space, project_id, rest_api_token = get_environment()
+    if not signalwire_space or not project_id or not rest_api_token:
+        return (f"Error: SignalWire Space, Project ID, and REST API Token must be set in the environment variables", 400)
+
+    url = f'https://{signalwire_space}.signalwire.com/{destination}'
     http_basic_auth = str(encode_auth(project_id, rest_api_token))
 
-    # if url is blank, then use this as a default
-    # this may change in the future if there are many different urls at play.
-    # adding this for api/relay/rest vs api/laml/2010-04-01.
-    # This makes api/relay/rest the default
-    if len(url) == 0:
-        url = 'https://%s.signalwire.com/api/relay/rest/' % signalwire_space
-
-    if headers == {}:
-        if req_type == "GET":
-          headers = {
-            'Accept': 'applications/json',
-            'Authorization': 'Basic %s' % http_basic_auth
-          }
-        elif req_type == "POST" or req_type == "PUT" or req_type == "DELETE":
-          headers = {
+    # Determine the type of headers to send based on Request Type
+    if req_type in ["POST", "PUT", "DELETE"]:
+        headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'Basic %s' % http_basic_auth
-          }
-        else:
-          print ("Something bad has happened.  That is not a valid HTTP request type!")
-          quit()
+        }
+    else:
+        headers = {
+            'Accept': 'applications/json',
+            'Authorization': 'Basic %s' % http_basic_auth
+        }
 
-    fqdn = str(url + destination + query_params)
-    ## UNCOMMENT FOR DEBUG PURPOSES
-    #print ("DEBUG req_type: " + req_type)
-    #print ("DEBUG fqdn: " + fqdn)
-    #print ("DEBUG payload: " + payload)
-    #print ("DEBUG headers: " + headers)
-    #print (headers)
-    response = requests.request(req_type, fqdn, headers=headers, data=payload)
+    response = requests.request(req_type, url=url, headers=headers, data=payload)
     return (response)

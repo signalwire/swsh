@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
+from sys import api_version
 import cmd2
 import json
 import urllib.parse
 from .base import BaseCommand
-from functions import sip_endpoint_func
+from functions import http_request
 
+# SIP ENDPOINT API LOCATION
+api_destination = "api/relay/rest/endpoints/sip"
+#
 
 class SipEndpointCommand(BaseCommand):
     """SIP Endpoint management commands"""
-    
+
     def get_parser(self):
         """Create and return the argument parser for sip_endpoint commands"""
         # Create the top level parser for sip endpoints
@@ -77,7 +81,7 @@ class SipEndpointCommand(BaseCommand):
             name = urllib.parse.quote(name)
             query_params = f"?filter_username={name}"
 
-        output, status_code = sip_endpoint_func(query_params)
+        output, status_code = self._sip_endpoint_func(query_params, req_type="GET")
         valid = self.handle_standard_response(output, status_code)
         
         if valid:
@@ -111,7 +115,7 @@ class SipEndpointCommand(BaseCommand):
 
         payload = self._build_payload(args)
         
-        output, status_code = sip_endpoint_func(req_type="POST", payload=payload)
+        output, status_code = self._sip_endpoint_func(req_type="POST", payload=payload)
         valid = self.handle_standard_response(output, status_code)
         
         if valid:
@@ -132,7 +136,7 @@ class SipEndpointCommand(BaseCommand):
 
         payload = self._build_payload(args)
 
-        output, status_code = sip_endpoint_func(query_params, req_type="PUT", payload=payload)
+        output, status_code = self._sip_endpoint_func(query_params, req_type="PUT", payload=payload)
         valid = self.handle_standard_response(output, status_code)
         
         if valid:
@@ -149,7 +153,7 @@ class SipEndpointCommand(BaseCommand):
             
         if self.confirm_deletion("SIP Endpoint", args.id, args.force):
             query_params = f"/{args.id}"
-            output, status_code = sip_endpoint_func(query_params, "DELETE")
+            output, status_code = self._sip_endpoint_func(query_params, req_type="DELETE")
             valid = self.handle_standard_response(output, status_code)
             
             if valid:
@@ -172,3 +176,8 @@ class SipEndpointCommand(BaseCommand):
                     payload_data[k] = v
 
         return (json.dumps(payload_data))
+
+    def _sip_endpoint_func(self, query_params="", req_type="GET", headers={}, payload={}):
+        destination = f"{api_destination}{query_params}"
+        response = http_request(destination, req_type, headers, payload)
+        return (response.text, response.status_code)
