@@ -114,7 +114,7 @@ class SipEndpointCommand(BaseCommand):
 
         payload = self._build_payload(args)
         
-        output, status_code = self._sip_endpoint_func(req_type="POST", payload=payload)
+        output, status_code = self._sip_endpoint_func(req_type="POST", payload=json.dumps(payload))
         valid = self.handle_standard_response(output, status_code)
         
         if valid:

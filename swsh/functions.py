@@ -60,11 +60,11 @@ def phone_number_lookup(query_params):
 ########################################
 ############ SIP PROFILE ###############
 ########################################
-def sip_profile_func( query_params="", req_type="GET", headers={}, payload={} ):
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "sip_profile" + query_params
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-    return (response.text, response.status_code)
+# def sip_profile_func( query_params="", req_type="GET", headers={}, payload={} ):
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "sip_profile" + query_params
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
+#     return (response.text, response.status_code)
 
 ########################################
 ############# LAML BINS ################
@@ -298,6 +298,7 @@ def validate_json(output):
         return False
 
 def print_error_json(error_json):
+    print (error_json)
     # Just printing the error code and detail of the error.
     # Down the road, it may make sense to print the entire JSON, but most users probably just want the text
     error_json = json.loads(error_json)
@@ -317,7 +318,7 @@ def print_error_json_compatibility(error_json):
 
     print ("API ERROR -- " + status + ": " + message + "\n")
 
-def http_request(destination, req_type, payload={}, headers={}, query_params=""):
+def http_request(destination, req_type, payload={}, query_params=""):
     signalwire_space, project_id, rest_api_token = get_environment()
     if not signalwire_space or not project_id or not rest_api_token:
         return (f"Error: SignalWire Space, Project ID, and REST API Token must be set in the environment variables", 400)
@@ -337,6 +338,6 @@ def http_request(destination, req_type, payload={}, headers={}, query_params="")
             'Accept': 'applications/json',
             'Authorization': 'Basic %s' % http_basic_auth
         }
-
+    
     response = requests.request(req_type, url=url, headers=headers, data=payload)
     return (response)
