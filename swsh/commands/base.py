@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import cmd2
 import json
+import re
 
 # Syntax Highlighting
 from pygments import highlight
@@ -173,7 +174,7 @@ class BaseCommand:
     def display_output(self, output, json_format=False):
         """
         Reusable method to display command output in either JSON or formatted view
-        
+
         Args:
             output: API response string or dict
             json_format: Boolean to determine if output should be in JSON format
@@ -181,18 +182,18 @@ class BaseCommand:
         if not output:
             print("No data available")
             return
-            
+
         try:
             # Parse output if it's a string
             if isinstance(output, str):
                 json_data = json.loads(output)
             else:
                 json_data = output
-                
+
             if json_format:
                 # Handle JSON output format
                 data = json_data.get('data') if isinstance(json_data, dict) else json_data
-                
+
                 if data is not None:
                     if data:
                         print(self.colorize_json(json.dumps(data, indent=2)))
@@ -203,10 +204,50 @@ class BaseCommand:
             else:
                 # Handle formatted output
                 self.format_output(output)
-                
+
         except json.JSONDecodeError:
             print("Error: Invalid JSON")
         except Exception as e:
             print(f"ERROR: {str(e)}")
+
+    def validate_e164_format(self, phone_number, country_code="+1"):
+        """
+        Validate phone number format (E.164)
+
+        Args:
+            phone_number: Phone number string to validate
+            country_code: Expected country code (default: "+1" for US/Canada)
+
+        Returns:
+            bool: True if valid E.164 format, False otherwise
+        """
+        if country_code == "+1":
+            # US/Canada: +1 followed by 10 digits
+            pattern = r'^\+1\d{10}$'
+        else:
+            # Generic E.164: + followed by country code and up to 15 total digits
+            pattern = r'^\+\d{1,15}$'
+
+        phone_regex = re.compile(pattern)
+        return bool(phone_regex.search(phone_number))
+
+    def validate_e164_or_error(self, phone_number, country_code="+1"):
+        """
+        Validate E.164 format and print error if invalid
+
+        Args:
+            phone_number: Phone number string to validate
+            country_code: Expected country code (default: "+1" for US/Canada)
+
+        Returns:
+            bool: True if valid, False if invalid (error already printed)
+        """
+        if not self.validate_e164_format(phone_number, country_code):
+            if country_code == "+1":
+                print(f'ERROR: "{phone_number}" is not in valid E.164 format (expected: +1XXXXXXXXXX)\n')
+            else:
+                print(f'ERROR: "{phone_number}" is not in valid E.164 format\n')
+            return False
+        return True
 
 

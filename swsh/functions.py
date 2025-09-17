@@ -34,19 +34,19 @@ def project_func( query_params="", req_type="GET", headers={}, payload={} ):
 ########################################
 ######## PHONE NUMBER FUNCTIONS ########
 ########################################
-def phone_number_func( query_params="", req_type="GET", headers={}, payload={} ):
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "phone_numbers" + query_params
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-    return (response.text, response.status_code)
+# def phone_number_func( query_params="", req_type="GET", headers={}, payload={} ):
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "phone_numbers" + query_params
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
+#     return (response.text, response.status_code)
 
-def phone_number_lookup(query_params):
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "lookup/phone_number/" + query_params
-    response = http_request(signalwire_space, project_id, rest_api_token, destination, "GET")
-    json_response = json.loads(response.text)
-    json_formatted_response = json.dumps(json_response, indent=2)
-    print (json_formatted_response)
+# def phone_number_lookup(query_params):
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "lookup/phone_number/" + query_params
+#     response = http_request(signalwire_space, project_id, rest_api_token, destination, "GET")
+#     json_response = json.loads(response.text)
+#     json_formatted_response = json.dumps(json_response, indent=2)
+#     print (json_formatted_response)
 
 ########################################
 ######## SIP ENDPOINT FUNCTIONS ########
@@ -341,6 +341,11 @@ def http_request(destination, req_type, payload={}):
 
     if payload:
         payload = json.loads(payload)
-    
-    response = requests.request(req_type, url=url, headers=headers, data=payload)
+
+    # Use json parameter for proper JSON serialization when payload is a dict
+    if payload and isinstance(payload, dict):
+        response = requests.request(req_type, url=url, headers=headers, json=payload)
+    else:
+        response = requests.request(req_type, url=url, headers=headers, data=payload)
+
     return (response)

@@ -75,6 +75,12 @@ Commands are now organized into separate modules under `swsh/commands/`:
 - **Authentication**: HTTP Basic Auth with `project_id:rest_api_token`
 - **HTTP Client**: Custom wrapper using requests library in `functions.py`
 
+#### HTTP Request Function Signature
+The `http_request()` function in `functions.py` has been streamlined:
+- **Current signature**: `http_request(destination, req_type, payload={})`
+- **Headers are automatically determined** by the request type - no longer passed as parameter
+- **Payload handling**: Automatically converts JSON strings to dicts when needed (see conditional check in functions.py)
+
 ### Build System Architecture
 Uses PyInstaller with custom patching system:
 1. Installs dependencies via pip
