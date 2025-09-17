@@ -176,7 +176,7 @@ class SipEndpointCommand(BaseCommand):
 
         return (json.dumps(payload_data))
 
-    def _sip_endpoint_func(self, query_params="", req_type="GET", headers={}, payload={}):
+    def _sip_endpoint_func(self, query_params="", req_type="GET", payload={}):
         destination = f"{api_destination}{query_params}"
-        response = http_request(destination, req_type, headers, payload)
+        response = http_request(destination, req_type, payload)
         return (response.text, response.status_code)

@@ -91,7 +91,7 @@ class SipProfileCommand(BaseCommand):
 
         return (payload_data)
 
-    def _sip_profile_func(self, query_params="", req_type="GET", headers={}, payload={}):
+    def _sip_profile_func(self, query_params="", req_type="GET", payload={}):
         """SIP Profile API wrapper"""
         destination = f"{api_destination}{query_params}"
         response = http_request(destination, req_type, payload)        
