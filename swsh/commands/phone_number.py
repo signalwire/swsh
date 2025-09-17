@@ -21,6 +21,7 @@ class PhoneNumberCommand(BaseCommand):
         # List subcommand
         list_parser = subparsers.add_parser('list', help='List Phone Numbers for a Project')
         list_parser.add_argument('-j', '--json', action='store_true', help='List Phone Numbers for project in JSON Format')
+        list_parser.add_argument('-s', '--short', action='store_true', help='Show only phone numbers (short format)')
         list_parser.add_argument('-n', '--name', nargs='+', help='Find a phone number by object Name')
         list_parser.add_argument('-i', '--id', help='Find a phone number by SignalWire ID')
         list_parser.add_argument('-N', '--number', help='Return a phone number by number in E164 format')
@@ -138,7 +139,12 @@ class PhoneNumberCommand(BaseCommand):
                 else:
                     output_json = json.loads(output)
                     data = output_json.get("data", [])
-                    self._print_phone_number_list(data)
+                    if hasattr(args, 'short') and args.short:
+                        # Use short format (just phone numbers)
+                        self._print_phone_number_list(data)
+                    else:
+                        # Use detailed format (like other commands)
+                        self.display_output(json.dumps({"data": data}), json_format=False)
         else:
             print(f"Error: {output}")
 

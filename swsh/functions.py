@@ -16,20 +16,20 @@ env_var_dict = {}
 ########################################
 ########### SPACE  FUNCTIONS ###########
 ########################################
-def project_func( query_params="", req_type="GET", headers={}, payload={} ):
-    # Uses compatibility API
-    signalwire_space, project_id, rest_api_token = get_environment()
-    destination = "Accounts" + query_params
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
+# def project_func( query_params="", req_type="GET", headers={}, payload={} ):
+#     # Uses compatibility API
+#     signalwire_space, project_id, rest_api_token = get_environment()
+#     destination = "Accounts" + query_params
+#     if req_type == "POST":
+#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
+#         headers = {
+#           'Content-Type': 'application/x-www-form-urlencoded',
+#           'Accept': 'application/json',
+#           'Authorization': 'Basic %s' % http_basic_auth
+#         }
+#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
+#     return (response.text, response.status_code)
 
 ########################################
 ######## PHONE NUMBER FUNCTIONS ########
@@ -326,23 +326,39 @@ def http_request(destination, req_type, payload={}):
     url = f'https://{signalwire_space}.signalwire.com/{destination}'
     http_basic_auth = str(encode_auth(project_id, rest_api_token))
 
-    # Determine the type of headers to send based on Request Type
+    # Handle different payload types first to determine content-type
+    is_form_encoded = False
+    if payload:
+        if isinstance(payload, str):
+            # Try to detect if it's JSON or form-encoded data
+            try:
+                # If it parses as JSON, treat it as JSON
+                payload = json.loads(payload)
+            except (json.JSONDecodeError, ValueError):
+                # If it doesn't parse as JSON, treat it as form-encoded data (keep as string)
+                is_form_encoded = True
+
+    # Determine the type of headers to send based on Request Type and payload format
     if req_type in ["POST", "PUT", "DELETE"]:
+        if is_form_encoded:
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Authorization': 'Basic %s' % http_basic_auth
+            }
+        else:
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Basic %s' % http_basic_auth
+            }
+    else:
         headers = {
-            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': 'Basic %s' % http_basic_auth
         }
-    else:
-        headers = {
-            'Accept': 'applications/json',
-            'Authorization': 'Basic %s' % http_basic_auth
-        }
 
-    if payload:
-        payload = json.loads(payload)
-
-    # Use json parameter for proper JSON serialization when payload is a dict
+    # Use appropriate request parameter based on payload type
     if payload and isinstance(payload, dict):
         response = requests.request(req_type, url=url, headers=headers, json=payload)
     else:

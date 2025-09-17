@@ -61,6 +61,9 @@ Commands are now organized into separate modules under `swsh/commands/`:
 - **Base Command**: `base.py` - Shared functionality and patterns for all commands
 - **SIP Endpoint**: `sip_endpoint.py` - SIP endpoint management (list, create, update, delete)
 - **Phone Number**: `phone_number.py` - Phone number operations (list, update, release, lookup, buy)
+  - `phone_number list` - Shows detailed format by default (NEW)
+  - `phone_number list --short` - Shows numbers only (previous default behavior)
+  - `phone_number list --json` - JSON format output
 - **LAML Bin**: `laml_bin.py` - LAML bin management (list, create, update, delete)
 
 ### Command Pattern (REFACTORED)
@@ -115,6 +118,12 @@ This codebase currently has no automated testing setup. When adding features, ma
 - **Main Shell**: Now focuses on initialization and routing to command modules
 - API wrapper functions remain centralized in `functions.py`
 - Cross-platform compatibility handled through different build scripts
+
+### Recent Changes
+- **Phone Number List Output**: `phone_number list` now shows detailed format by default
+  - Use `--short` flag for previous behavior (numbers only)
+  - Improved visual formatting with separators and resource titles
+  - Better consistency with other commands
 
 ### Adding New Commands
 When adding new command modules:

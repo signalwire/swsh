@@ -131,13 +131,24 @@ class BaseCommand:
         for key, value in json_output.items():
             formatted_key = ' '.join(capitalize_special_keys(k) for k in key.split('_'))
 
+            # Handle Subresource Uris as a special case for better formatting
+            if key.lower() == 'subresource_uris' and isinstance(value, dict):
+                print(f"{' ' * indent}{formatted_key:{max_key_length}} :")
+                # Filter out None values and format each URI nicely
+                available_uris = {k: v for k, v in value.items() if v is not None}
+                if available_uris:
+                    for uri_key, uri_value in available_uris.items():
+                        uri_formatted_key = ' '.join(capitalize_special_keys(k) for k in uri_key.split('_'))
+                        print(f"{' ' * (indent + 2)}{uri_formatted_key:<25} : {uri_value}")
+                else:
+                    print(f"{' ' * (indent + 2)}No available subresources")
             # Handle lists differently, so they print nice
-            if isinstance(value, list):
+            elif isinstance(value, list):
                 formatted_value = ', '.join(map(str, value))
+                print(f"{' ' * indent}{formatted_key:{max_key_length}} : {formatted_value}")
             else:
                 formatted_value = str(value)
-
-            print(f"{' ' * indent}{formatted_key:{max_key_length}} : {formatted_value}")
+                print(f"{' ' * indent}{formatted_key:{max_key_length}} : {formatted_value}")
 
         print ("")
 
@@ -157,17 +168,29 @@ class BaseCommand:
                 error_message = 'No data found'
                 return (error_message, 404)
             
-            for k, v in enumerate(items, start=1):
+            # Use visual separators instead of numbered lists for better readability
+            for k, v in enumerate(items):
                 if isinstance(v, dict):
-                    if 'number' in v:
-                        print(f"{v.get('number', 'No Number Available!')}")
-                    else:
-                        print(f"{k})")
-                        self.print_formatted_output(v)
+                    # Use a clean separator line with intelligent title detection
+                    separator_line = "─" * 80
+                    title_info = self._get_resource_title_info(v)
+
+                    if title_info and len(items) > 1:
+                        print(f"\n{separator_line}")
+                        print(f"{title_info}")
+                        print(f"{separator_line}")
+                    elif len(items) > 1:
+                        # Just show separator without title for multiple items
+                        print(f"\n{separator_line}")
+
+                    self.print_formatted_output(v)
                 elif isinstance(v, str):
-                    print(f"{k}) {v}")
+                    if len(items) > 1:
+                        print(f"\n• {v}")
+                    else:
+                        print(v)
                 else:
-                    print(f"{k}) ERROR: Unexpected data format")
+                    print(f"ERROR: Unexpected data format")
         except json.JSONDecodeError:
             print('ERROR: Invalid JSON data')
 
@@ -249,5 +272,90 @@ class BaseCommand:
                 print(f'ERROR: "{phone_number}" is not in valid E.164 format\n')
             return False
         return True
+
+    def _get_resource_title_info(self, resource_data):
+        """
+        Intelligently detect and format resource title information
+
+        Args:
+            resource_data: Dictionary containing resource information
+
+        Returns:
+            str: Formatted title string or None if no suitable title found
+        """
+        if not isinstance(resource_data, dict):
+            return None
+
+        # Priority-ordered list of potential title fields with their resource type mappings
+        title_mapping = [
+            # Projects/Accounts
+            ('friendly_name', 'Project'),
+            # SIP Endpoints, Number Groups, etc.
+            ('name', 'SIP Endpoint'),
+            ('username', 'SIP Endpoint'),
+            # Phone Numbers
+            ('number', 'Phone Number'),
+            # Domain Applications
+            ('domain_name', 'Domain Application'),
+            # Applications
+            ('application_name', 'Application'),
+            # Queues
+            ('queue_name', 'Queue'),
+            # Generic fallbacks
+            ('label', 'Resource'),
+            ('title', 'Resource'),
+            ('identifier', 'Resource'),
+        ]
+
+        # Auto-detect resource type based on available fields
+        resource_type = self._detect_resource_type(resource_data)
+
+        # Try to find the best title field
+        for field_name, default_type in title_mapping:
+            if field_name in resource_data and resource_data[field_name]:
+                value = resource_data[field_name]
+                # Use detected resource type or fallback to mapping
+                type_name = resource_type if resource_type else default_type
+                return f"{type_name}: {value}"
+
+        # If no title field found but we detected a resource type, use generic title
+        if resource_type:
+            return f"{resource_type}"
+
+        return None
+
+    def _detect_resource_type(self, resource_data):
+        """
+        Detect resource type based on field patterns
+
+        Args:
+            resource_data: Dictionary containing resource information
+
+        Returns:
+            str: Detected resource type or None
+        """
+        # Define field patterns that indicate specific resource types
+        type_patterns = {
+            'Project': ['friendly_name', 'subproject', 'owner_account_sid'],
+            'SIP Endpoint': ['username', 'sip_profile_id', 'endpoint_id'],
+            'Phone Number': ['number', 'call_handler', 'message_handler'],
+            'Number Group': ['name', 'numbers', 'group_id'],
+            'Domain Application': ['domain_name', 'call_handler', 'message_handler'],
+            'LAML Bin': ['friendly_name', 'laml_bin_sid'],
+            'Queue': ['queue_name', 'max_size', 'current_size'],
+            'SIP Profile': ['name', 'profile_id'],
+        }
+
+        # Check which resource type has the most matching fields
+        best_match = None
+        max_matches = 0
+
+        for resource_type, required_fields in type_patterns.items():
+            matches = sum(1 for field in required_fields if field in resource_data)
+            if matches > max_matches and matches > 0:
+                max_matches = matches
+                best_match = resource_type
+
+        return best_match
 
 
