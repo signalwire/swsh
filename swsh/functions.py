@@ -87,20 +87,20 @@ def laml_bin_func( query_params="", req_type="GET", headers={}, payload = {} ):
 ########################################
 ############# LAML APPS ################
 ########################################
-def laml_app_func( query_params="", req_type="GET", headers={}, payload = {} ):
-    # Uses the Compatibility API
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "Accounts/" + project_id + "/Applications" + query_params
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
+# def laml_app_func( query_params="", req_type="GET", headers={}, payload = {} ):
+#     # Uses the Compatibility API
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "Accounts/" + project_id + "/Applications" + query_params
+#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
+#     if req_type == "POST":
+#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
+#         headers = {
+#           'Content-Type': 'application/x-www-form-urlencoded',
+#           'Accept': 'application/json',
+#           'Authorization': 'Basic %s' % http_basic_auth
+#         }
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
+#     return (response.text, response.status_code)
 
 # ########################################
 # ########### NUMBER GROUPS ##############
@@ -114,29 +114,29 @@ def laml_app_func( query_params="", req_type="GET", headers={}, payload = {} ):
 ########################################
 ######### DOMAIN APPLICATIONS ##########
 ########################################
-def domain_application_func( query_params = "", req_type="GET", headers={}, payload={} ):
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "domain_applications" + query_params
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-    return (response.text, response.status_code)
+# def domain_application_func( query_params = "", req_type="GET", headers={}, payload={} ):
+#     signalwire_space, project_id, rest_api_token =  get_environment()
+#     destination = "domain_applications" + query_params
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
+#     return (response.text, response.status_code)
 
 ########################################
 ############# FIFO QUEUES ##############
 ########################################
-def fifo_queue_func( query_params="", req_type="GET", headers={}, payload={} ):
-    # Uses compatibility API
-    signalwire_space, project_id, rest_api_token = get_environment()
-    destination = "Accounts/" + project_id + query_params
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
+# def fifo_queue_func( query_params="", req_type="GET", headers={}, payload={} ):
+#     # Uses compatibility API
+#     signalwire_space, project_id, rest_api_token = get_environment()
+#     destination = "Accounts/" + project_id + query_params
+#     if req_type == "POST":
+#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
+#         headers = {
+#           'Content-Type': 'application/x-www-form-urlencoded',
+#           'Accept': 'application/json',
+#           'Authorization': 'Basic %s' % http_basic_auth
+#         }
+#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
+#     return (response.text, response.status_code)
 
 ########################################
 ############### FAXES  #################
@@ -159,20 +159,20 @@ def fax_func( query_params="", req_type="GET", headers={}, payload={} ):
 ########################################
 ############## SEND A CALL #############
 ########################################
-def call_func( query_params = "", req_type="GET", headers={}, payload={} ):
-    # Uses compatibility API
-    signalwire_space, project_id, rest_api_token = get_environment()
-    destination = "Accounts/" + project_id + "/Calls" + query_params
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
+# def call_func( query_params = "", req_type="GET", headers={}, payload={} ):
+#     # Uses compatibility API
+#     signalwire_space, project_id, rest_api_token = get_environment()
+#     destination = "Accounts/" + project_id + "/Calls" + query_params
+#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
+#     if req_type == "POST":
+#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
+#         headers = {
+#           'Content-Type': 'application/x-www-form-urlencoded',
+#           'Accept': 'application/json',
+#           'Authorization': 'Basic %s' % http_basic_auth
+#         }
+#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
+#     return (response.text, response.status_code)
 
 ########################################
 def get_environment():
