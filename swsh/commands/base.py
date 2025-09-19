@@ -340,7 +340,7 @@ class BaseCommand:
             'SIP Endpoint': ['username', 'sip_profile_id', 'endpoint_id'],
             'Phone Number': ['number', 'call_handler', 'message_handler'],
             'Number Group': ['name', 'numbers', 'group_id'],
-            'Domain Application': ['domain_name', 'call_handler', 'message_handler'],
+            'Domain Application': ['domain', 'identifier', 'call_handler'],
             'LAML Bin': ['friendly_name', 'laml_bin_sid'],
             'Queue': ['queue_name', 'max_size', 'current_size'],
             'SIP Profile': ['name', 'profile_id'],
