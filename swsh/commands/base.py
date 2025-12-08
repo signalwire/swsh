@@ -356,7 +356,7 @@ class BaseCommand:
             'Phone Number': ['number', 'call_handler', 'message_handler'],
             'Number Group': ['name', 'numbers', 'group_id'],
             'Domain Application': ['domain', 'identifier', 'call_handler'],
-            'LAML Bin': ['friendly_name', 'laml_bin_sid'],
+            'cXML Bin': ['contents', 'request_url', 'num_requests'],
             'Queue': ['queue_name', 'max_size', 'current_size'],
             'SIP Profile': ['name', 'profile_id'],
         }
