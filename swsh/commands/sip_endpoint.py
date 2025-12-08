@@ -23,7 +23,7 @@ class SipEndpointCommand(BaseCommand):
         list_parser.add_argument('-i', '--id', help='List SIP Endpoint by SignalWire ID')
         list_parser.add_argument('-j', '--json', action='store_true', help='Output SIP Endpoint(s) in JSON format')
         list_parser.add_argument('-n', '--name', type=str, nargs='+', help='Search for SIP Endpoint by username')
-        list_parser.set_defaults(func=self.list_sip_endpoints)
+        list_parser.set_defaults(func='list_sip_endpoints')
 
         # Update / Create Common Arguments
         def add_common_arguments(parser):
@@ -39,18 +39,18 @@ class SipEndpointCommand(BaseCommand):
         update_parser = subparsers.add_parser('update', help='Update a SIP Endpoint')
         add_common_arguments(update_parser)
         update_parser.add_argument('-i', '--id', help='SignalWire ID of the SIP Endpoint to be updated')
-        update_parser.set_defaults(func=self.manage_sip_endpoint, update=True)
+        update_parser.set_defaults(func='manage_sip_endpoint', update=True)
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create a SIP Endpoint')
         add_common_arguments(create_parser)
-        create_parser.set_defaults(func=self.manage_sip_endpoint, create=True)
+        create_parser.set_defaults(func='manage_sip_endpoint', create=True)
 
         # Delete subcommand
         delete_parser = subparsers.add_parser('delete', help='Delete a SIP Endpoint')
         delete_parser.add_argument('-i', '--id', help='SignalWire ID of the SIP Endpoint to be deleted', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force delete.  Will not ask to confirm delete of SIP Endpoint')
-        delete_parser.set_defaults(func=self.manage_sip_endpoint, delete=True)
+        delete_parser.set_defaults(func='manage_sip_endpoint', delete=True)
 
         return base_parser
     
@@ -60,10 +60,10 @@ class SipEndpointCommand(BaseCommand):
         """
         # Process environment variables once for all commands
         args = self.is_env_var(args)
-        
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('sip_endpoint')
 

@@ -23,18 +23,18 @@ class ProjectCommand(BaseCommand):
         list_parser.add_argument('-n', '--name', nargs='+', help='List Single Project by Friendly Name')
         list_parser.add_argument('-i', '--id', help='List SignalWire Space or Subspace with given SID')
         list_parser.add_argument('-j', '--json', action='store_true', help='List Projects in JSON format')
-        list_parser.set_defaults(func=self.list_projects)
+        list_parser.set_defaults(func='list_projects')
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create a subproject')
         create_parser.add_argument('-n', '--name', nargs='+', help='Create a subproject under the current project', required=True)
-        create_parser.set_defaults(func=self.create_project)
+        create_parser.set_defaults(func='create_project')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a project')
         update_parser.add_argument('-n', '--name', nargs='+', help='Update the name of a subproject')
         update_parser.add_argument('-i', '--id', help='SignalWire ID of the subproject', required=True)
-        update_parser.set_defaults(func=self.update_project)
+        update_parser.set_defaults(func='update_project')
 
         return base_parser
 
@@ -45,9 +45,9 @@ class ProjectCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('project')
 

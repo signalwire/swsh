@@ -22,26 +22,26 @@ class FifoQueueCommand(BaseCommand):
         list_parser = subparsers.add_parser('list', help='List FIFO Queues for a Project')
         list_parser.add_argument('-i', '--id', help='List a Single FIFO Queue by SignalWire ID')
         list_parser.add_argument('-j', '--json', action='store_true', help='Output FIFO Queue(s) in JSON format')
-        list_parser.set_defaults(func=self.list_queues)
+        list_parser.set_defaults(func='list_queues')
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create a FIFO Queue')
         create_parser.add_argument('-n', '--name', nargs='+', help='Friendly name of the FIFO Queue', required=True)
         create_parser.add_argument('-m', '--maxsize', help='The maximum number of calls that are allowed to wait in a queue. Default is 5.', default='5')
-        create_parser.set_defaults(func=self.create_queue)
+        create_parser.set_defaults(func='create_queue')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a FIFO Queue')
         update_parser.add_argument('-i', '--id', help='SignalWire ID of the FIFO Queue', required=True)
         update_parser.add_argument('-n', '--name', nargs='+', help='Friendly name of the FIFO Queue')
         update_parser.add_argument('-m', '--maxsize', help='The maximum number of calls that are allowed to wait in a queue.')
-        update_parser.set_defaults(func=self.update_queue)
+        update_parser.set_defaults(func='update_queue')
 
         # Delete subcommand
         delete_parser = subparsers.add_parser('delete', help='Delete/Remove a FIFO Queue')
         delete_parser.add_argument('-i', '--id', help='SignalWire ID of the FIFO Queue to be deleted', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force removal. Will not ask to confirm delete of FIFO Queue')
-        delete_parser.set_defaults(func=self.delete_queue)
+        delete_parser.set_defaults(func='delete_queue')
 
         return base_parser
 
@@ -52,9 +52,9 @@ class FifoQueueCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('fifo_queue')
 

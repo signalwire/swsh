@@ -19,7 +19,7 @@ class SipProfileCommand(BaseCommand):
         # List subcommand
         list_parser = subparsers.add_parser('list', help='List SIP Profiles')
         list_parser.add_argument('-j', '--json', action='store_true', help='Output SIP Profile(s) in JSON format')
-        list_parser.set_defaults(func=self.list_sip_profiles)
+        list_parser.set_defaults(func='list_sip_profiles')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a SIP Profile')
@@ -32,7 +32,7 @@ class SipProfileCommand(BaseCommand):
         update_parser.add_argument('--default-ciphers', type=str, nargs='+', help='Set Default Ciphers for SIP Profile', 
                                  choices=['AEAD_AES_256_GCM_8','AES_256_CM_HMAC_SHA1_80','AES_CM_128_HMAC_SHA1_80',
                                          'AES_256_CM_HMAC_SHA1_32','AES_CM_128_HMAC_SHA1_32'])
-        update_parser.set_defaults(func=self.update_sip_profile)
+        update_parser.set_defaults(func='update_sip_profile')
 
         return base_parser
     
@@ -40,10 +40,10 @@ class SipProfileCommand(BaseCommand):
         """Handle sip_profile command routing"""
         # Process environment variables once for all commands
         args = self.is_env_var(args)
-        
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('sip_profile')
 

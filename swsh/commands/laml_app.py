@@ -22,7 +22,7 @@ class LamlAppCommand(BaseCommand):
         list_parser = subparsers.add_parser('list', help='List LaML Applications for the Project')
         list_parser.add_argument('-i', '--id', help='SignalWire ID of the LaML Application')
         list_parser.add_argument('-j', '--json', action='store_true', help='List LaML Applications in JSON format')
-        list_parser.set_defaults(func=self.list_applications)
+        list_parser.set_defaults(func='list_applications')
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create a LaML Application')
@@ -40,7 +40,7 @@ class LamlAppCommand(BaseCommand):
         create_parser.add_argument('--sms-fallback-url', help='URL SignalWire will request if errors occur when fetching the sms_url')
         create_parser.add_argument('--sms-fallback-method', help='HTTP method for sms_fallback_url. Default is POST.', choices=["POST", "GET"], default="POST")
         create_parser.add_argument('--sms-status-callback', help='When a message receives a status change, a POST request to this URL with message details')
-        create_parser.set_defaults(func=self.create_application)
+        create_parser.set_defaults(func='create_application')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a LaML Application')
@@ -59,13 +59,13 @@ class LamlAppCommand(BaseCommand):
         update_parser.add_argument('--sms-fallback-url', help='URL SignalWire will request if errors occur when fetching the sms_url')
         update_parser.add_argument('--sms-fallback-method', help='HTTP method for sms_fallback_url. Default is POST.', choices=["POST", "GET"], default="POST")
         update_parser.add_argument('--sms-status-callback', help='When a message receives a status change, a POST request to this URL with message details')
-        update_parser.set_defaults(func=self.update_application)
+        update_parser.set_defaults(func='update_application')
 
         # Delete subcommand
         delete_parser = subparsers.add_parser('delete', help='Delete/Remove a LaML Application')
         delete_parser.add_argument('-i', '--id', help='SignalWire ID of the LaML Application to be deleted', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force removal. Will not ask to confirm delete of LaML Application')
-        delete_parser.set_defaults(func=self.delete_application)
+        delete_parser.set_defaults(func='delete_application')
 
         return base_parser
 
@@ -76,9 +76,9 @@ class LamlAppCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('laml_app')
 

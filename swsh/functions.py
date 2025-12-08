@@ -3,6 +3,7 @@ import base64
 import requests
 import os,sys
 import json
+from dotenv import load_dotenv
 
 # Syntax Highlighting
 from pygments import highlight
@@ -159,23 +160,39 @@ def fax_func( query_params="", req_type="GET", headers={}, payload={} ):
 ########################################
 ############## SEND A CALL #############
 ########################################
-# def call_func( query_params = "", req_type="GET", headers={}, payload={} ):
-#     # Uses compatibility API
-#     signalwire_space, project_id, rest_api_token = get_environment()
-#     destination = "Accounts/" + project_id + "/Calls" + query_params
-#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-#     if req_type == "POST":
-#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
-#         headers = {
-#           'Content-Type': 'application/x-www-form-urlencoded',
-#           'Accept': 'application/json',
-#           'Authorization': 'Basic %s' % http_basic_auth
-#         }
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-#     return (response.text, response.status_code)
+def call_func( query_params = "", req_type="GET", headers={}, payload={} ):
+    # Uses compatibility API
+     signalwire_space, project_id, rest_api_token = get_environment()
+     destination = "Accounts/" + project_id + "/Calls" + query_params
+     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
+     if req_type == "POST":
+         http_basic_auth = str(encode_auth(project_id, rest_api_token))
+         headers = {
+           'Content-Type': 'application/x-www-form-urlencoded',
+           'Accept': 'application/json',
+           'Authorization': 'Basic %s' % http_basic_auth
+         }
+     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
+     return (response.text, response.status_code)
 
 ########################################
 def get_environment():
+    """
+    Get SignalWire credentials from .env file or environment variables.
+
+    Checks in order:
+    1. .env file in current working directory
+    2. .env file in ~/.swsh/ directory
+    3. System environment variables
+    """
+    # Try to load .env from current directory first
+    if os.path.exists('.env'):
+        load_dotenv('.env')
+    # Then try ~/.swsh/.env
+    elif os.path.exists(os.path.expanduser('~/.swsh/.env')):
+        load_dotenv(os.path.expanduser('~/.swsh/.env'))
+
+    # Now get values (dotenv loads into os.environ, so os.getenv works for both)
     signalwire_space = os.getenv('SIGNALWIRE_SPACE')
     project_id = os.getenv('PROJECT_ID')
     rest_api_token = os.getenv('REST_API_TOKEN')

@@ -24,7 +24,7 @@ class DomainApplicationCommand(BaseCommand):
         list_parser.add_argument('-n', '--name', nargs='+', help='Return all values for the given name of Domain App')
         list_parser.add_argument('-i', '--id', help='SignalWire ID of the Domain Application')
         list_parser.add_argument('-j', '--json', action='store_true', help='List Domain Applications in JSON Format')
-        list_parser.set_defaults(func=self.list_domain_applications)
+        list_parser.set_defaults(func='list_domain_applications')
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create a Domain Application')
@@ -47,7 +47,7 @@ class DomainApplicationCommand(BaseCommand):
         create_parser.add_argument('--codecs', nargs='+', help='Supported codecs', choices=['OPUS', 'G722', 'PCMU', 'PCMA', 'VP8', 'H264'])
         create_parser.add_argument('--ciphers', nargs='+', help='Supported ciphers',
                                  choices=['AEAD_AES_256_GCM_8', 'AES_256_CM_HMAC_SHA1_80', 'AES_CM_128_HMAC_SHA1_80', 'AES_256_CM_HMAC_SHA1_32', 'AES_CM_128_HMAC_SHA1_32'])
-        create_parser.set_defaults(func=self.create_domain_application)
+        create_parser.set_defaults(func='create_domain_application')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a Domain Application')
@@ -71,13 +71,13 @@ class DomainApplicationCommand(BaseCommand):
         update_parser.add_argument('--codecs', nargs='+', help='Supported codecs', choices=['OPUS', 'G722', 'PCMU', 'PCMA', 'VP8', 'H264'])
         update_parser.add_argument('--ciphers', nargs='+', help='Supported ciphers',
                                  choices=['AEAD_AES_256_GCM_8', 'AES_256_CM_HMAC_SHA1_80', 'AES_CM_128_HMAC_SHA1_80', 'AES_256_CM_HMAC_SHA1_32', 'AES_CM_128_HMAC_SHA1_32'])
-        update_parser.set_defaults(func=self.update_domain_application)
+        update_parser.set_defaults(func='update_domain_application')
 
         # Delete subcommand
         delete_parser = subparsers.add_parser('delete', help='Delete/Remove a Domain Application')
         delete_parser.add_argument('-i', '--id', help='SignalWire ID of the Domain Application to be deleted', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force removal. Will not ask to confirm delete of Domain Application')
-        delete_parser.set_defaults(func=self.delete_domain_application)
+        delete_parser.set_defaults(func='delete_domain_application')
 
         return base_parser
 
@@ -88,9 +88,9 @@ class DomainApplicationCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('domain_application')
 

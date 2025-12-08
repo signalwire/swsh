@@ -20,12 +20,14 @@ class PhoneNumberCommand(BaseCommand):
 
         # List subcommand
         list_parser = subparsers.add_parser('list', help='List Phone Numbers for a Project')
-        list_parser.add_argument('-j', '--json', action='store_true', help='List Phone Numbers for project in JSON Format')
+        output_group = list_parser.add_mutually_exclusive_group()
+        output_group.add_argument('-j', '--json', action='store_true', help='Output in JSON format')
+        output_group.add_argument('-f', '--formatted', action='store_true', help='Output in formatted view (overrides config)')
         list_parser.add_argument('-s', '--short', action='store_true', help='Show only phone numbers (short format)')
         list_parser.add_argument('-n', '--name', nargs='+', help='Find a phone number by object Name')
         list_parser.add_argument('-i', '--id', help='Find a phone number by SignalWire ID')
         list_parser.add_argument('-N', '--number', help='Return a phone number by number in E164 format')
-        list_parser.set_defaults(func=self.list_phone_numbers)
+        list_parser.set_defaults(func='list_phone_numbers')
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update a Phone Number')
@@ -66,14 +68,14 @@ class PhoneNumberCommand(BaseCommand):
         update_parser.add_argument('--message-relay-topic', help='The name of the Relay Topic to send this message to when using the relay_topic message handler. Alias of message_relay_application. If both are sent, message_relay_application takes precedence')
         update_parser.add_argument('--message-relay-context', help='[DEPRECATED] The name of the Relay Context to send this message to when using the relay_context message handler. Use --message-relay-application instead')
         update_parser.add_argument('--message-relay-application', help='The name of the Relay Application to send this message to when using the relay_application message handler. Alias of message_relay_context. If both are sent, message_relay_application takes precedence')
-        update_parser.set_defaults(func=self.update_phone_number)
+        update_parser.set_defaults(func='update_phone_number')
 
         # Release subcommand
         release_parser = subparsers.add_parser('release', help='Release/Remove a Phone Number')
         release_parser.add_argument('-i', '--id', help='The SignalWire ID of the number that is being Released (Removed)')
         release_parser.add_argument('-n', '--number', help='Number to be Released (Removed)')
         release_parser.add_argument('-f', '--force', action='store_true', help='Force release. Will not ask to confirm release of Phone Number')
-        release_parser.set_defaults(func=self.release_phone_number)
+        release_parser.set_defaults(func='release_phone_number')
 
         # Lookup subcommand
         lookup_parser = subparsers.add_parser('lookup', help='Lookup a Phone Number (in E.164 format)')
@@ -81,7 +83,7 @@ class PhoneNumberCommand(BaseCommand):
         lookup_parser.add_argument('--cnam', action='store_true', help='Include CNAM lookup')
         lookup_parser.add_argument('--carrier', action='store_true', help='Include carrier lookup')
         lookup_parser.add_argument('-j', '--json', action='store_true', help='Output lookup results in JSON format')
-        lookup_parser.set_defaults(func=self.lookup_phone_number)
+        lookup_parser.set_defaults(func='lookup_phone_number')
 
         # Buy subcommand
         buy_parser = subparsers.add_parser('buy', help='Purchase Phone numbers for the Project')
@@ -89,7 +91,7 @@ class PhoneNumberCommand(BaseCommand):
         buy_parser.add_argument('--contains', help='Filter numbers that contain these digits')
         buy_parser.add_argument('--ends-with', help='Filter numbers that end with these digits')
         buy_parser.add_argument('--max-results', type=int, default=10, help='Maximum number of results to show (default: 10)')
-        buy_parser.set_defaults(func=self.buy_phone_number)
+        buy_parser.set_defaults(func='buy_phone_number')
 
         return base_parser
 
@@ -100,9 +102,10 @@ class PhoneNumberCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            # Call method by name on self (the properly initialized instance)
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('phone_number')
 
@@ -110,7 +113,6 @@ class PhoneNumberCommand(BaseCommand):
         """
         List phone numbers with optional filtering
         """
-
         query_params = ""
         if args.id:
             query_params = f"/{args.id}"
@@ -126,27 +128,22 @@ class PhoneNumberCommand(BaseCommand):
         valid = self.handle_standard_response(output, status_code)
 
         if valid:
-            if args.json:
-                output_json = json.loads(output)
-                if args.id:
-                    self.display_output(output, json_format=True)
-                else:
-                    data = output_json.get("data", [])
-                    self.display_output(json.dumps({"data": data}), json_format=True)
+            output_json = json.loads(output)
+
+            # Handle short format separately (just phone numbers)
+            if hasattr(args, 'short') and args.short and not args.id:
+                data = output_json.get("data", [])
+                self._print_phone_number_list(data)
+                return
+
+            # Determine output format from flags
+            force_formatted = getattr(args, 'formatted', False)
+
+            if args.id:
+                self.display_output(output, json_format=args.json, force_formatted=force_formatted)
             else:
-                if args.id:
-                    self.display_output(output, json_format=False)
-                else:
-                    output_json = json.loads(output)
-                    data = output_json.get("data", [])
-                    if hasattr(args, 'short') and args.short:
-                        # Use short format (just phone numbers)
-                        self._print_phone_number_list(data)
-                    else:
-                        # Use detailed format (like other commands)
-                        self.display_output(json.dumps({"data": data}), json_format=False)
-        else:
-            print(f"Error: {output}")
+                data = output_json.get("data", [])
+                self.display_output(json.dumps({"data": data}), json_format=args.json, force_formatted=force_formatted)
 
     def update_phone_number(self, args):
         """
@@ -211,7 +208,7 @@ class PhoneNumberCommand(BaseCommand):
                 lookup_type.append("cnam")
             if args.carrier:
                 lookup_type.append("carrier")
-            query_params += f"?type={','.join(lookup_type)}"
+            query_params += f"?include={','.join(lookup_type)}"
 
         lookup_destination = "api/relay/rest/lookup/phone_number/"
         output, status_code = self._phone_number_func(query_params=query_params, destination_override=lookup_destination)

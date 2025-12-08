@@ -45,7 +45,7 @@ class CallCommand(BaseCommand):
         send_parser.add_argument('--machine-detection-speech-threshold', type=int, help='Milliseconds of speech before considering human')
         send_parser.add_argument('--machine-detection-speech-end-threshold', type=int, help='Milliseconds of silence to detect speech end')
         send_parser.add_argument('--machine-detection-silence-timeout', type=int, help='Milliseconds of silence before considering machine')
-        send_parser.set_defaults(func=self.send_call)
+        send_parser.set_defaults(func='send_call')
 
         # Get subcommand (retrieve call details)
         get_parser = subparsers.add_parser('get', help='Retrieve call details and logs')
@@ -59,7 +59,7 @@ class CallCommand(BaseCommand):
         get_parser.add_argument('--from-num', help='Filter calls from this phone number')
         get_parser.add_argument('--to-num', help='Filter calls to this phone number')
         get_parser.add_argument('--parent-call-sid', help='Filter calls that are children of this call')
-        get_parser.set_defaults(func=self.get_call)
+        get_parser.set_defaults(func='get_call')
 
         # Lookup subcommand (alias for get)
         lookup_parser = subparsers.add_parser('lookup', help='Lookup call details (alias for get)')
@@ -73,7 +73,7 @@ class CallCommand(BaseCommand):
         lookup_parser.add_argument('--from-num', help='Filter calls from this phone number')
         lookup_parser.add_argument('--to-num', help='Filter calls to this phone number')
         lookup_parser.add_argument('--parent-call-sid', help='Filter calls that are children of this call')
-        lookup_parser.set_defaults(func=self.get_call)  # Same function as get
+        lookup_parser.set_defaults(func='get_call')  # Same function as get
 
         # Update subcommand (modify an active call)
         update_parser = subparsers.add_parser('update', help='Update an active call')
@@ -85,13 +85,13 @@ class CallCommand(BaseCommand):
         update_parser.add_argument('--fallback-method', help='HTTP method for fallback URL', choices=['POST', 'GET'])
         update_parser.add_argument('--status-callback', help='New status callback URL')
         update_parser.add_argument('--status-callback-method', help='HTTP method for status callbacks', choices=['POST', 'GET'])
-        update_parser.set_defaults(func=self.update_call)
+        update_parser.set_defaults(func='update_call')
 
         # Delete subcommand (terminate/delete a call)
         delete_parser = subparsers.add_parser('delete', help='Delete/Terminate a call')
         delete_parser.add_argument('-i', '--id', help='SignalWire ID of the call to delete', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force deletion. Will not ask to confirm delete of call')
-        delete_parser.set_defaults(func=self.delete_call)
+        delete_parser.set_defaults(func='delete_call')
 
         return base_parser
 
@@ -102,9 +102,9 @@ class CallCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('call')
 

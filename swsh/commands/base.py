@@ -194,17 +194,32 @@ class BaseCommand:
         except json.JSONDecodeError:
             print('ERROR: Invalid JSON data')
 
-    def display_output(self, output, json_format=False):
+    def display_output(self, output, json_format=False, force_formatted=False):
         """
         Reusable method to display command output in either JSON or formatted view
 
         Args:
             output: API response string or dict
-            json_format: Boolean to determine if output should be in JSON format
+            json_format: Boolean to force JSON output (--json flag)
+            force_formatted: Boolean to force formatted output (--formatted flag, overrides config)
         """
         if not output:
             print("No data available")
             return
+
+        # Determine output format:
+        # 1. Explicit --json flag forces JSON
+        # 2. Explicit --formatted flag forces formatted (overrides config)
+        # 3. Otherwise, check shell's output_format setting
+        if json_format:
+            use_json_format = True
+        elif force_formatted:
+            use_json_format = False
+        elif self.shell is not None:
+            shell_format = getattr(self.shell, 'output_format', 'formatted')
+            use_json_format = (shell_format == 'json')
+        else:
+            use_json_format = False
 
         try:
             # Parse output if it's a string
@@ -213,7 +228,7 @@ class BaseCommand:
             else:
                 json_data = output
 
-            if json_format:
+            if use_json_format:
                 # Handle JSON output format
                 data = json_data.get('data') if isinstance(json_data, dict) else json_data
 

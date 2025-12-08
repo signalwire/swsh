@@ -23,26 +23,26 @@ class NumberGroupCommand(BaseCommand):
         list_parser.add_argument('-n', '--name', nargs='+', help='Return all Number Groups containing this value')
         list_parser.add_argument('-i', '--id', help='Return a Number Group with the given ID')
         list_parser.add_argument('-j', '--json', action='store_true', help='List Number Groups in JSON Format')
-        list_parser.set_defaults(func=self.list_number_groups)
+        list_parser.set_defaults(func='list_number_groups')
 
         # Create subcommand
         create_parser = subparsers.add_parser('create', help='Create Number Group for the Project')
         create_parser.add_argument('-n', '--name', nargs='+', help='Name given to a Number Group within the project', required=True)
         create_parser.add_argument('-s', '--sticky-sender', help='Whether the number group uses the same From number for outbound requests', choices=['true', 'false'], default='false')
-        create_parser.set_defaults(func=self.manage_number_group, create=True)
+        create_parser.set_defaults(func='manage_number_group', create=True)
 
         # Update subcommand
         update_parser = subparsers.add_parser('update', help='Update Number Groups for the Project')
         update_parser.add_argument('-n', '--name', nargs='+', help='Update the name of a Number Group')
         update_parser.add_argument('-i', '--id', help='ID of the Number Group to be updated', required=True)
         update_parser.add_argument('-s', '--sticky-sender', help='Whether the number group uses the same From number for Outbound requests', choices=['true', 'false'], default='false')
-        update_parser.set_defaults(func=self.manage_number_group, update=True)
+        update_parser.set_defaults(func='manage_number_group', update=True)
 
         # Delete subcommand
         delete_parser = subparsers.add_parser('delete', help='Delete Number Groups for the Project')
         delete_parser.add_argument('-i', '--id', help='ID of the Number Group to be deleted', required=True)
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force delete. Will not ask to confirm delete of Number Group')
-        delete_parser.set_defaults(func=self.manage_number_group, delete=True)
+        delete_parser.set_defaults(func='manage_number_group', delete=True)
 
         return base_parser
 
@@ -53,9 +53,9 @@ class NumberGroupCommand(BaseCommand):
         # Process environment variables once for all commands
         args = self.is_env_var(args)
 
-        func = getattr(args, 'func', None)
-        if func is not None:
-            func(args)
+        func_name = getattr(args, 'func', None)
+        if func_name is not None:
+            getattr(self, func_name)(args)
         else:
             self.shell.do_help('number_group')
 
