@@ -216,6 +216,23 @@ class VideoCommand(BaseCommand):
 
         stream_parser.set_defaults(func='stream_help')
 
+        # ==================== LOGS ====================
+        logs_parser = subparsers.add_parser('logs', help='View video logs')
+        logs_subparsers = logs_parser.add_subparsers(title='VIDEO LOGS', help='video logs help')
+
+        # logs list
+        logs_list_parser = logs_subparsers.add_parser('list', help='List video logs')
+        logs_list_parser.add_argument('-j', '--json', action='store_true', help='Output logs in JSON format')
+        logs_list_parser.set_defaults(func='list_video_logs')
+
+        # logs get
+        logs_get_parser = logs_subparsers.add_parser('get', help='Get a specific video log by ID')
+        logs_get_parser.add_argument('-i', '--id', help='Log ID to retrieve', required=True)
+        logs_get_parser.add_argument('-j', '--json', action='store_true', help='Output log in JSON format')
+        logs_get_parser.set_defaults(func='get_video_log')
+
+        logs_parser.set_defaults(func='logs_help')
+
         return base_parser
 
     def handle_command(self, args):
@@ -679,6 +696,42 @@ class VideoCommand(BaseCommand):
 
         if valid:
             print(f"Success! Conference token {args.id} has been reset\n")
+
+    # ==================== VIDEO LOGS ====================
+    def logs_help(self, args):
+        """Show logs subcommand help"""
+        print("Usage: video logs {list,get} [options]")
+        print("\nLogs subcommands:")
+        print("  list     List video logs")
+        print("  get      Get a specific video log by ID")
+        print("\nUse 'video logs <subcommand> -h' for more information.\n")
+
+    def list_video_logs(self, args):
+        """List video logs"""
+        output, status_code = self._video_func("/logs", req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
+
+    def get_video_log(self, args):
+        """Get a specific video log by ID"""
+        if not args.id:
+            print("Log ID is required\n")
+            return
+
+        query_params = f"/logs/{args.id}"
+        output, status_code = self._video_func(query_params, req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
 
     # ==================== HELPER METHODS ====================
     def _video_func(self, query_params="", req_type="GET", payload={}):

@@ -319,9 +319,38 @@ fax media delete --fax-id FX1234567890abcdef1234567890abcdef --media-id ME123456
 # Choose 'no' when prompted
 ```
 
-### 10. Edge Cases & Error Handling
+### 10. Logs Commands
 ```bash
-# TC-092: Invalid command (should show help)
+# TC-092: List fax logs
+fax logs list
+
+# TC-093: List fax logs in JSON format
+fax logs list --json
+
+# TC-094: Get specific fax log by ID
+fax logs get --id <log_id>
+
+# TC-095: Get specific fax log by ID in JSON format
+fax logs get --id <log_id> --json
+
+# TC-096: Get non-existent fax log by ID
+fax logs get --id 00000000-0000-0000-0000-000000000000
+
+# TC-097: Get fax log without ID (should fail)
+fax logs get
+
+# TC-098: Logs subcommand without action (should show help)
+fax logs
+
+# TC-099: Logs subcommand help
+fax logs --help
+fax logs list --help
+fax logs get --help
+```
+
+### 11. Edge Cases & Error Handling
+```bash
+# TC-100: Invalid command (should show help)
 fax invalid_command
 
 # TC-093: No subcommand (should show help)

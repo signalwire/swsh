@@ -368,9 +368,39 @@ message media delete --message-id SM1234567890abcdef1234567890abcdef --media-id 
 message get --id SM1234567890abcdef1234567890abcdef  # Message should still exist
 ```
 
-### 10. Edge Cases & Error Handling
+### 10. Logs Commands
 ```bash
-# TC-107: Invalid command (should show help)
+# TC-107: List message logs
+message logs list
+
+# TC-108: List message logs in JSON format
+message logs list --json
+
+# TC-109: Get specific message log by ID
+message logs get --id <log_id>
+
+# TC-110: Get specific message log by ID in JSON format
+message logs get --id <log_id> --json
+
+# TC-111: Get non-existent message log by ID
+message logs get --id 00000000-0000-0000-0000-000000000000
+
+# TC-112: Get message log without ID (should fail)
+message logs get
+
+# TC-113: Logs subcommand without action (should show help)
+message logs
+
+# TC-114: Logs subcommand help
+message logs --help
+message logs list --help
+message logs get --help
+```
+
+### 11. Edge Cases & Error Handling
+
+```bash
+# TC-115: Invalid command (should show help)
 message invalid_command
 
 # TC-108: No subcommand (should show help)

@@ -93,6 +93,23 @@ class CallCommand(BaseCommand):
         delete_parser.add_argument('-f', '--force', action='store_true', help='Force deletion. Will not ask to confirm delete of call')
         delete_parser.set_defaults(func='delete_call')
 
+        # Logs subcommand group
+        logs_parser = subparsers.add_parser('logs', help='View voice/call logs')
+        logs_subparsers = logs_parser.add_subparsers(title='CALL LOGS', help='call logs help')
+
+        # Logs list subcommand
+        logs_list_parser = logs_subparsers.add_parser('list', help='List voice logs')
+        logs_list_parser.add_argument('-j', '--json', action='store_true', help='Output logs in JSON format')
+        logs_list_parser.set_defaults(func='list_call_logs')
+
+        # Logs get subcommand
+        logs_get_parser = logs_subparsers.add_parser('get', help='Get a specific voice log by ID')
+        logs_get_parser.add_argument('-i', '--id', help='Log ID to retrieve', required=True)
+        logs_get_parser.add_argument('-j', '--json', action='store_true', help='Output log in JSON format')
+        logs_get_parser.set_defaults(func='get_call_log')
+
+        logs_parser.set_defaults(func='logs_help')
+
         return base_parser
 
     def handle_command(self, args):
@@ -343,10 +360,56 @@ class CallCommand(BaseCommand):
             print(f"Error: Could not retrieve LaML Bin {laml_bin_id}. Status: {status_code}\n")
             return None
 
+    # Call Logs operations
+    def logs_help(self, args):
+        """Show logs subcommand help"""
+        print("Usage: call logs {list,get} [options]")
+        print("\nLogs subcommands:")
+        print("  list     List voice logs")
+        print("  get      Get a specific voice log by ID")
+        print("\nUse 'call logs <subcommand> -h' for more information.\n")
+
+    def list_call_logs(self, args):
+        """
+        List voice logs
+        """
+        output, status_code = self._call_logs_func("/logs", req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
+
+    def get_call_log(self, args):
+        """
+        Get a specific voice log by ID
+        """
+        if not args.id:
+            print("Log ID is required\n")
+            return
+
+        query_params = f"/logs/{args.id}"
+        output, status_code = self._call_logs_func(query_params, req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
+
     def _call_func(self, query_params="", req_type="GET", payload=""):
         """Get project ID from environment and construct API destination"""
         from functions import get_environment
         _, project_id, _ = get_environment()  # Need to get the project ID from the environment to hit the correct API endpoint.
         destination = f"{api_destination}/{project_id}{query_params}"
+        response = http_request(destination, req_type, payload)
+        return (response.text, response.status_code)
+
+    def _call_logs_func(self, query_params="", req_type="GET", payload=""):
+        """Make HTTP request to voice logs API (different base path)"""
+        destination = f"api/voice{query_params}"
         response = http_request(destination, req_type, payload)
         return (response.text, response.status_code)

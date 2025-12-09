@@ -511,7 +511,36 @@ video stream delete --id 00000000-0000-0000-0000-000000000000 --force
 video stream delete --id <stream_id>
 ```
 
-### 20. Edge Cases & Error Handling
+### 20. Logs Commands
+```bash
+# TC-149: List video logs
+video logs list
+
+# TC-150: List video logs in JSON format
+video logs list --json
+
+# TC-151: Get specific video log by ID
+video logs get --id <log_id>
+
+# TC-152: Get specific video log by ID in JSON format
+video logs get --id <log_id> --json
+
+# TC-153: Get non-existent log by ID
+video logs get --id 00000000-0000-0000-0000-000000000000
+
+# TC-154: Get log without ID (should fail)
+video logs get
+
+# TC-155: Logs subcommand without action (should show help)
+video logs
+
+# TC-156: Logs subcommand help
+video logs --help
+video logs list --help
+video logs get --help
+```
+
+### 21. Edge Cases & Error Handling
 ```bash
 # TC-149: Invalid subcommand (should show help)
 video invalid_command

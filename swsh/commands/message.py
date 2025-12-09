@@ -87,6 +87,25 @@ class MessageCommand(BaseCommand):
         media_delete_parser.add_argument('-f', '--force', action='store_true', help='Force deletion. Will not ask to confirm')
         media_delete_parser.set_defaults(func='delete_message_media')
 
+        media_parser.set_defaults(func='media_help')
+
+        # Logs subcommand group
+        logs_parser = subparsers.add_parser('logs', help='View message logs')
+        logs_subparsers = logs_parser.add_subparsers(title='MESSAGE LOGS', help='message logs help')
+
+        # Logs list subcommand
+        logs_list_parser = logs_subparsers.add_parser('list', help='List message logs')
+        logs_list_parser.add_argument('-j', '--json', action='store_true', help='Output logs in JSON format')
+        logs_list_parser.set_defaults(func='list_message_logs')
+
+        # Logs get subcommand
+        logs_get_parser = logs_subparsers.add_parser('get', help='Get a specific message log by ID')
+        logs_get_parser.add_argument('-i', '--id', help='Log ID to retrieve', required=True)
+        logs_get_parser.add_argument('-j', '--json', action='store_true', help='Output log in JSON format')
+        logs_get_parser.set_defaults(func='get_message_log')
+
+        logs_parser.set_defaults(func='logs_help')
+
         return base_parser
 
     def handle_command(self, args):
@@ -384,9 +403,64 @@ class MessageCommand(BaseCommand):
         else:
             print("Delete operation cancelled\n")
 
+    # Message Logs operations
+    def media_help(self, args):
+        """Show media subcommand help"""
+        print("Usage: message media {list,get,delete} [options]")
+        print("\nMedia subcommands:")
+        print("  list     List media files for a message")
+        print("  get      Get a specific media file")
+        print("  delete   Delete a media file")
+        print("\nUse 'message media <subcommand> -h' for more information.\n")
+
+    def logs_help(self, args):
+        """Show logs subcommand help"""
+        print("Usage: message logs {list,get} [options]")
+        print("\nLogs subcommands:")
+        print("  list     List message logs")
+        print("  get      Get a specific message log by ID")
+        print("\nUse 'message logs <subcommand> -h' for more information.\n")
+
+    def list_message_logs(self, args):
+        """
+        List message logs
+        """
+        output, status_code = self._message_logs_func("/logs", req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
+
+    def get_message_log(self, args):
+        """
+        Get a specific message log by ID
+        """
+        if not args.id:
+            print("Log ID is required\n")
+            return
+
+        query_params = f"/logs/{args.id}"
+        output, status_code = self._message_logs_func(query_params, req_type="GET")
+        valid = self.handle_standard_response(output, status_code)
+
+        if valid:
+            if args.json:
+                self.display_output(output, json_format=True)
+            else:
+                self.display_output(output, json_format=False)
+
     def _message_func(self, query_params="", req_type="GET", payload=""):
         """Get project ID from environment and construct API destination"""
         _, project_id, _ = get_environment()
         destination = f"{api_destination}/{project_id}{query_params}"
+        response = http_request(destination, req_type, payload)
+        return (response.text, response.status_code)
+
+    def _message_logs_func(self, query_params="", req_type="GET", payload=""):
+        """Make HTTP request to messaging logs API (different base path)"""
+        destination = f"api/messaging{query_params}"
         response = http_request(destination, req_type, payload)
         return (response.text, response.status_code)

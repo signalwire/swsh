@@ -347,9 +347,38 @@ call delete --id <active_call_id> --force
 call delete --id <completed_call_id> --force
 ```
 
-### 6. Edge Cases & Error Handling
+### 6. Logs Commands
 ```bash
-# TC-107: Invalid command (should show help)
+# TC-107: List voice logs
+call logs list
+
+# TC-108: List voice logs in JSON format
+call logs list --json
+
+# TC-109: Get specific voice log by ID
+call logs get --id <log_id>
+
+# TC-110: Get specific voice log by ID in JSON format
+call logs get --id <log_id> --json
+
+# TC-111: Get non-existent voice log by ID
+call logs get --id 00000000-0000-0000-0000-000000000000
+
+# TC-112: Get voice log without ID (should fail)
+call logs get
+
+# TC-113: Logs subcommand without action (should show help)
+call logs
+
+# TC-114: Logs subcommand help
+call logs --help
+call logs list --help
+call logs get --help
+```
+
+### 7. Edge Cases & Error Handling
+```bash
+# TC-115: Invalid command (should show help)
 call invalid_command
 
 # TC-108: No subcommand (should show help)
