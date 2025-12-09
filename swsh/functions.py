@@ -1,180 +1,16 @@
 #!/usr/bin/env python3
 import base64
 import requests
-import os,sys
+import os
 import json
 from dotenv import load_dotenv
-
-# Syntax Highlighting
-from pygments import highlight
-from pygments.lexers import JsonLexer
-from pygments.formatters import Terminal256Formatter
 
 ####
 
 env_var_dict = {}
 
 ########################################
-########### SPACE  FUNCTIONS ###########
-########################################
-# def project_func( query_params="", req_type="GET", headers={}, payload={} ):
-#     # Uses compatibility API
-#     signalwire_space, project_id, rest_api_token = get_environment()
-#     destination = "Accounts" + query_params
-#     if req_type == "POST":
-#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
-#         headers = {
-#           'Content-Type': 'application/x-www-form-urlencoded',
-#           'Accept': 'application/json',
-#           'Authorization': 'Basic %s' % http_basic_auth
-#         }
-#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-#     return (response.text, response.status_code)
-
-########################################
-######## PHONE NUMBER FUNCTIONS ########
-########################################
-# def phone_number_func( query_params="", req_type="GET", headers={}, payload={} ):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "phone_numbers" + query_params
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-#     return (response.text, response.status_code)
-
-# def phone_number_lookup(query_params):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "lookup/phone_number/" + query_params
-#     response = http_request(signalwire_space, project_id, rest_api_token, destination, "GET")
-#     json_response = json.loads(response.text)
-#     json_formatted_response = json.dumps(json_response, indent=2)
-#     print (json_formatted_response)
-
-########################################
-######## SIP ENDPOINT FUNCTIONS ########
-########################################
-# def sip_endpoint_func( query_params="", req_type="GET", headers={}, payload={} ):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "endpoints/sip" + query_params
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-#     return (response.text, response.status_code)
-
-########################################
-############ SIP PROFILE ###############
-########################################
-# def sip_profile_func( query_params="", req_type="GET", headers={}, payload={} ):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "sip_profile" + query_params
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-#     return (response.text, response.status_code)
-
-########################################
-############# LAML BINS ################
-########################################
-def laml_bin_func( query_params="", req_type="GET", headers={}, payload = {} ):
-    # Uses the Compatibility API
-    signalwire_space, project_id, rest_api_token =  get_environment()
-    destination = "Accounts/" + project_id + "/LamlBins" + query_params
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
-
-########################################
-############# LAML APPS ################
-########################################
-# def laml_app_func( query_params="", req_type="GET", headers={}, payload = {} ):
-#     # Uses the Compatibility API
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "Accounts/" + project_id + "/Applications" + query_params
-#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-#     if req_type == "POST":
-#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
-#         headers = {
-#           'Content-Type': 'application/x-www-form-urlencoded',
-#           'Accept': 'application/json',
-#           'Authorization': 'Basic %s' % http_basic_auth
-#         }
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-#     return (response.text, response.status_code)
-
-# ########################################
-# ########### NUMBER GROUPS ##############
-# ########################################
-# def number_group_func( query_params = "", req_type="GET", headers={}, payload={} ):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "number_groups" + query_params
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-#     return (response.text, response.status_code)
-
-########################################
-######### DOMAIN APPLICATIONS ##########
-########################################
-# def domain_application_func( query_params = "", req_type="GET", headers={}, payload={} ):
-#     signalwire_space, project_id, rest_api_token =  get_environment()
-#     destination = "domain_applications" + query_params
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload )
-#     return (response.text, response.status_code)
-
-########################################
-############# FIFO QUEUES ##############
-########################################
-# def fifo_queue_func( query_params="", req_type="GET", headers={}, payload={} ):
-#     # Uses compatibility API
-#     signalwire_space, project_id, rest_api_token = get_environment()
-#     destination = "Accounts/" + project_id + query_params
-#     if req_type == "POST":
-#         http_basic_auth = str(encode_auth(project_id, rest_api_token))
-#         headers = {
-#           'Content-Type': 'application/x-www-form-urlencoded',
-#           'Accept': 'application/json',
-#           'Authorization': 'Basic %s' % http_basic_auth
-#         }
-#     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-#     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-#     return (response.text, response.status_code)
-
-########################################
-############### FAXES  #################
-########################################
-def fax_func( query_params="", req_type="GET", headers={}, payload={} ):
-    # Uses compatibility API
-    signalwire_space, project_id, rest_api_token = get_environment()
-    destination = "Accounts/" + project_id + query_params
-    if req_type == "POST":
-        http_basic_auth = str(encode_auth(project_id, rest_api_token))
-        headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'Authorization': 'Basic %s' % http_basic_auth
-        }
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-    return (response.text, response.status_code)
-
-########################################
-############## SEND A CALL #############
-########################################
-def call_func( query_params = "", req_type="GET", headers={}, payload={} ):
-    # Uses compatibility API
-     signalwire_space, project_id, rest_api_token = get_environment()
-     destination = "Accounts/" + project_id + "/Calls" + query_params
-     url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-     if req_type == "POST":
-         http_basic_auth = str(encode_auth(project_id, rest_api_token))
-         headers = {
-           'Content-Type': 'application/x-www-form-urlencoded',
-           'Accept': 'application/json',
-           'Authorization': 'Basic %s' % http_basic_auth
-         }
-     response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, headers=headers, payload=payload, url=url )
-     return (response.text, response.status_code)
-
+############# ENVIRONMENT ##############
 ########################################
 def get_environment():
     """
@@ -198,24 +34,15 @@ def get_environment():
     rest_api_token = os.getenv('REST_API_TOKEN')
     return (signalwire_space, project_id, rest_api_token)
 
-def validate_signalwire_creds(signalwire_space, project_id, rest_api_token):
-    req_type = "GET"
-    destination = "Accounts"
-    url = "https://%s.signalwire.com/api/laml/2010-04-01/" % signalwire_space
-
-    response = http_request( signalwire_space, project_id, rest_api_token, destination, req_type, url=url )
-    if response.status_code == 200:
-        # The creds are legit
-        return True
-    else:
-        return False
-
+########################################
+########## SHELL ENVIRONMENT ###########
+########################################
 def set_shell_env(var):
     global env_var_dict
     env_var_split = var.split("=")
     key = env_var_split[0]
     val = env_var_split[1]
-    
+
     env_var_dict[key] = val
 
 def get_shell_env(var):
@@ -261,29 +88,15 @@ def is_env_var(args):
 
     return (args)
 
-def change_verify(template, lines):
-    changed = 1   # default changed to true; assume the user made a change
-    text = ""
-
-    for line in lines:
-        text = text + line
-
-    if text.strip() == template:
-        # There were no changes, set back to 0
-        changed = 0
-
-    return changed
-
+########################################
+############# UTILITIES ################
+########################################
 def json_nice_print(j):
     if len(j) == 0:
         print("No Results Found!")
     else:
         json_formatted_response = json.dumps(j, indent=4)
         print(json_formatted_response)
-        # Removing colorized JSON for now.  Leaving here to come back to later.
-        # Required a patch to set the correct colors for JSON in the pygments package.  Will need to work around that for pip installing.
-        # colorful_json = highlight(json_formatted_response, lexers.JsonLexer(), formatters.SwishFormatter())
-        # print (colorful_json)
 
 def encode_auth(project_id, rest_api_token):
     auth = str(project_id + ":" + rest_api_token)
@@ -293,21 +106,18 @@ def encode_auth(project_id, rest_api_token):
 
     return base64_auth
 
-
-
-# TODO: Revisit all of this:
+########################################
+############ VALIDATION ################
+########################################
 def validate_http(status_code):
-    # Validate an API response, and determine if it is an error
-    # Keeping track of 2XX codes I've seen.  Maybe these need to be passed w/ specific calls for validation.
-    # For now, if 2XX, then Pass.
-    # Seen: 200, 201, 204
+    """Validate an API response status code"""
     if status_code == 200 or status_code == 201 or status_code == 204:
         return True
     else:
         return False
 
 def validate_json(output):
-    # Validate whether or not a string is valid JSON
+    """Validate whether or not a string is valid JSON"""
     try:
         json.loads(output)
         return True
@@ -315,27 +125,35 @@ def validate_json(output):
         return False
 
 def print_error_json(error_json):
-    print (error_json)
-    # Just printing the error code and detail of the error.
-    # Down the road, it may make sense to print the entire JSON, but most users probably just want the text
+    """Print error from REST API response"""
+    print(error_json)
     error_json = json.loads(error_json)
     detail = str(error_json["errors"][0]["detail"])
     code = str(error_json["errors"][0]["code"])
 
-    print ("API ERROR -- " + code + ": " + detail + "\n")
+    print("API ERROR -- " + code + ": " + detail + "\n")
 
 def print_error_json_compatibility(error_json):
-    # Print a JSON Error that came from the compatibility API
-    # Just printing the error code and detail of the error.
-    # Down the road, it may make sense to print the entire JSON, but most users probably just want the text
+    """Print error from Compatibility API response"""
     # EXAMPLE: {'code': 20404, 'message': 'The requested resource was not found.', 'more_info': 'https://developer.signalwire.com/compatibility-api/reference/error-codes', 'status': 404}
     error_json = json.loads(error_json)
     message = str(error_json["message"])
     status = str(error_json["status"])
 
-    print ("API ERROR -- " + status + ": " + message + "\n")
+    print("API ERROR -- " + status + ": " + message + "\n")
 
+########################################
+############ HTTP REQUEST ##############
+########################################
 def http_request(destination, req_type, payload={}):
+    """
+    Make HTTP request to SignalWire API.
+
+    Automatically handles:
+    - Authentication via environment variables
+    - Content-Type detection (JSON vs form-encoded)
+    - Request method routing
+    """
     signalwire_space, project_id, rest_api_token = get_environment()
     if not signalwire_space or not project_id or not rest_api_token:
         return (f"Error: SignalWire Space, Project ID, and REST API Token must be set in the environment variables", 400)
@@ -356,7 +174,7 @@ def http_request(destination, req_type, payload={}):
                 is_form_encoded = True
 
     # Determine the type of headers to send based on Request Type and payload format
-    if req_type in ["POST", "PUT", "DELETE"]:
+    if req_type in ["POST", "PUT", "PATCH", "DELETE"]:
         if is_form_encoded:
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
