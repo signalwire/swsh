@@ -19,6 +19,7 @@ from functions import *
 
 # Dynamically load all command modules and create parsers
 import os
+import sys
 import importlib
 from pathlib import Path
 

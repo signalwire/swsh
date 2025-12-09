@@ -125,13 +125,34 @@ def validate_json(output):
         return False
 
 def print_error_json(error_json):
-    """Print error from REST API response"""
+    """Print error from REST API response - handles multiple formats"""
     print(error_json)
-    error_json = json.loads(error_json)
-    detail = str(error_json["errors"][0]["detail"])
-    code = str(error_json["errors"][0]["code"])
+    try:
+        error_data = json.loads(error_json)
 
-    print("API ERROR -- " + code + ": " + detail + "\n")
+        # Format 1: REST API - {"errors": [{"detail": "...", "code": "..."}]}
+        if "errors" in error_data and isinstance(error_data["errors"], list):
+            detail = str(error_data["errors"][0].get("detail", "Unknown error"))
+            code = str(error_data["errors"][0].get("code", "Unknown"))
+            print(f"API ERROR -- {code}: {detail}\n")
+
+        # Format 2: Fabric API - {"status": 404, "error": "Not Found"}
+        elif "status" in error_data and "error" in error_data:
+            status = str(error_data["status"])
+            error = str(error_data["error"])
+            print(f"API ERROR -- {status}: {error}\n")
+
+        # Format 3: Simple message
+        elif "message" in error_data:
+            message = str(error_data["message"])
+            status = str(error_data.get("status", "Error"))
+            print(f"API ERROR -- {status}: {message}\n")
+
+        else:
+            print("API ERROR -- Unknown error format\n")
+
+    except json.JSONDecodeError:
+        print(f"API ERROR -- Could not parse response: {error_json}\n")
 
 def print_error_json_compatibility(error_json):
     """Print error from Compatibility API response"""
