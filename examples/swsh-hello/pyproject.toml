@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "swsh-hello"
+version = "0.1.0"
+description = "An example sw plugin: `sw hello`."
+requires-python = ">=3.11"
+dependencies = ["swsh>=3.0,<4"]
+
+# The whole of the registration. The name on the left is the command, so this
+# package adds `sw hello`; the right side names the `Plugin` object.
+[project.entry-points."swsh.plugins"]
+hello = "swsh_hello:plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["swsh_hello"]

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # `requires-python = ">=3.11"` is a claim, and the only way it stays
+        # true is by being tested. Development happens on 3.14.
+        python: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Tests
+        # Nothing here reaches the network: HTTP is stubbed at the transport
+        # boundary and the cockpit runs headless. No credentials are needed and
+        # none are provided, which is also what keeps a fork's pull request
+        # from being able to ask for any.
+        run: python -m pytest -q
+
+      - name: Nothing tracked carries a credential
+        run: python scripts/audit_secrets.py --check
+
+      - name: The registry has not drifted from the catalog
+        # The differences themselves are a report, not a gate: some resources
+        # differ from the documented request bodies on purpose. What fails is a
+        # stale docs/field-audit.md, so a pull request that changes a field
+        # shows the effect in the diff.
+        run: |
+          python scripts/audit_fields.py --markdown
+          git diff --exit-code docs/field-audit.md

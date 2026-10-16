@@ -1,0 +1,109 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "swsh"
+# Read from swsh/__init__.py so there is one place to change it. Declared in
+# two files with nothing keeping them in step, they drift, and the first sign
+# is a wheel whose metadata disagrees with `sw --version`.
+dynamic = ["version"]
+description = "sw: the SignalWire CLI, a live TUI cockpit, and a callback sink."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Brian West", email = "brian@signalwire.com" },
+    { name = "Shane Harrell", email = "shane.harrell@signalwire.com" },
+]
+keywords = ["signalwire", "cli", "tui", "voice", "telephony", "webhooks"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Communications :: Telephony",
+    "Topic :: Software Development :: Libraries",
+]
+
+dependencies = [
+    # RELAY tap, `calling.*` call control, and the Agents SDK the lab stands
+    # up (`from signalwire import AgentBase`). One package, three uses.
+    "signalwire-sdk>=3.0.2,<3.1",
+    # The cockpit's SIP phone: the baresip stack with an asyncio API, wheels
+    # bundling libre and libbaresip so there is nothing to build. Still a
+    # pre-release, which needs no `--pre` here: naming one in the specifier is
+    # what makes pip willing to resolve it.
+    #
+    # It publishes wheels for macOS 15+ (Darwin 24+) and Linux on x86_64 and
+    # aarch64, and no source release, so it is only asked for there. Everywhere
+    # else, Windows included, sw installs without it and the phone panel says
+    # so. `softphone.platform_supported()` mirrors this condition; a test keeps
+    # the two in step.
+    "baresip-python>=0.5.1a1; (sys_platform == 'darwin' and platform_release >= '24') or (sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64'))",
+    "typer>=0.15",
+    "rich>=13.9",
+    "textual>=1.0",
+    "httpx>=0.27",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "platformdirs>=4.3",
+    "tomlkit>=0.13",
+    "keyring>=25.5",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "textual-dev>=1.6",
+    "ruff>=0.8",
+]
+
+[project.urls]
+Homepage = "https://github.com/signalwire/swsh"
+Issues = "https://github.com/signalwire/swsh/issues"
+Changelog = "https://github.com/signalwire/swsh/blob/main/CHANGELOG.md"
+
+[project.scripts]
+# One console script. The interactive shell the old `swsh` binary stood for is
+# `sw sh` — same letters, one command.
+sw = "swsh.cli:main"
+
+[tool.hatch.version]
+path = "swsh/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["swsh"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["venv", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "RUF"]
+ignore = [
+    # Typer declares CLI options as call-valued defaults; that is the API.
+    "B008",
+    # Textual's BINDINGS and CSS_PATH are class-level mutables by design.
+    "RUF012",
+    # CallState and Source are `str, Enum` on purpose. They are compared against
+    # and carried as raw wire strings all through the three-channel merge, and
+    # StrEnum changes str()/format() semantics. Not worth reshaping the most
+    # delicate code in the project for a lint.
+    "UP042",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests reach into private queues to assert on delivery without consuming, and
+# the form fixture yields a fixed (app, pilot, result) tuple that not every
+# case unpacks in full.
+"tests/*" = ["SLF001", "B007"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
