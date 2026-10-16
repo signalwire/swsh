@@ -41,7 +41,14 @@ dependencies = [
     # else, Windows included, sw installs without it and the phone panel says
     # so. `softphone.platform_supported()` mirrors this condition; a test keeps
     # the two in step.
-    "baresip-python>=0.5.1a1; (sys_platform == 'darwin' and platform_release >= '24') or (sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64'))",
+    #
+    # `'24' <= platform_release` is written backwards on purpose. Markers do not
+    # short-circuit, so every platform evaluates the Darwin clause, and pip
+    # 24.1 through 25.3 parse the left operand as a version: a Linux kernel
+    # string like `5.4.0-97-generic` raises InvalidVersion and the install dies
+    # before resolving anything. On the right, a non-version makes an invalid
+    # specifier, and PEP 508 falls back to a string comparison.
+    "baresip-python>=0.5.1a1; (sys_platform == 'darwin' and '24' <= platform_release) or (sys_platform == 'linux' and (platform_machine == 'x86_64' or platform_machine == 'aarch64'))",
     "typer>=0.15",
     "rich>=13.9",
     "textual>=1.0",

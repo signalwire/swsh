@@ -280,6 +280,20 @@ class TestTheDeviceKnowsWhereToRegisterAndWhatToDial:
         monkeypatch.setattr(platform, "machine", lambda: machine)
         assert softphone.platform_supported() is expected
 
+    def test_platform_release_is_never_the_left_operand(self):
+        """pip 24.1 through 25.3 parse a comparison's left operand as a
+        version, and a Linux kernel release (`5.4.0-97-generic`) is not one:
+        `platform_release >= '24'` killed every Linux install with
+        InvalidVersion. The test above cannot see it, because the packaging it
+        runs on (26+) falls back to string comparison as PEP 508 says to."""
+        import tomllib
+
+        pyproject = tomllib.loads(
+            (Path(__file__).resolve().parents[1] / "pyproject.toml").read_bytes().decode())
+        dep = next(d for d in pyproject["project"]["dependencies"]
+                   if d.startswith("baresip-python"))
+        assert not re.search(r"platform_release\s*[<>=!~]", dep), dep
+
     def test_an_unsupported_platform_is_told_so_not_told_to_reinstall(self, monkeypatch):
         monkeypatch.setattr(softphone, "platform_supported", lambda: False)
         assert "not available on this platform" in softphone.unavailable_reason()
