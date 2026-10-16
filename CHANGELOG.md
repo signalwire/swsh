@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 loosely: entries say what changed for someone using the tool, not what moved in
 the source.
 
+## [3.0.1] — 2026-10-16
+
+### Fixed
+
+- **`pip install swsh` works on Linux again.** On pip 24.1 through 25.3, 3.0.0
+  failed before resolving anything with `InvalidVersion: Invalid version:
+  '5.4.0-97-generic'` (or whatever the machine's kernel release was), and
+  Windows Server failed the same way on `2022Server`. The condition that
+  installs the SIP phone only on macOS 15+ read the OS release as a version
+  number on every platform, including ones where it is not one. Where the phone
+  is installed is unchanged. On 3.0.0, upgrading pip to 26.0 or newer is the
+  workaround.
+
 ## [3.0.0] — 2026-10-16
 
 A ground-up rewrite that replaces the original `swsh` shell. One console
@@ -109,5 +122,6 @@ in the README.
 The original cmd2-based `swsh` shell, published to PyPI as 0.1.1 through
 0.1.14. Tagged `v1.0.0` in git.
 
+[3.0.1]: https://github.com/signalwire/swsh/releases/tag/v3.0.1
 [3.0.0]: https://github.com/signalwire/swsh/releases/tag/v3.0.0
 [1.0.0]: https://github.com/signalwire/swsh/releases/tag/v1.0.0
