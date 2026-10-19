@@ -1243,7 +1243,7 @@ class TestProfileManager:
             await pilot.pause()
             assert isinstance(app.screen, ProfileFormScreen)
             for key, value in (("name", "third"), ("project", "proj-3"),
-                               ("token", "tok3"), ("space", "third.invalid")):
+                               ("token", "tok3"), ("space", "third.swire.io")):
                 app.screen.query_one(f"#pf-{key}", Input).value = value
             await pilot.press("ctrl+s")
             await pilot.pause()
@@ -1263,6 +1263,24 @@ class TestProfileManager:
             await pilot.pause()
             assert isinstance(app.screen, ProfileFormScreen)
             assert "required" in rendered_text(app.screen.query_one("#pf-error"))
+
+    async def test_form_refuses_an_unknown_domain(self, profiles):
+        from textual.widgets import Input
+
+        from swsh.tui.app import ProfileFormScreen
+
+        app = SwshApp(profile=FAKE)
+        async with app.run_test(size=(160, 50)) as pilot:
+            app.push_screen(ProfileFormScreen())
+            await pilot.pause()
+            for key, value in (("name", "bad"), ("project", "p"),
+                               ("token", "t"), ("space", "example.example.com")):
+                app.screen.query_one(f"#pf-{key}", Input).value = value
+            await pilot.press("ctrl+s")
+            await pilot.pause()
+            assert isinstance(app.screen, ProfileFormScreen)
+            assert "invalid space domain" in rendered_text(app.screen.query_one("#pf-error"))
+            assert "bad" not in config.list_profiles()
 
     async def test_delete_asks_then_removes(self, profiles):
         from swsh.tui.app import ConfirmScreen, ProfileScreen

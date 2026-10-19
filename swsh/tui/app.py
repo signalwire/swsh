@@ -300,7 +300,7 @@ PROFILE_FIELDS = (
     ("name", "Profile name", False),
     ("project", "Project ID", False),
     ("token", "API token", True),
-    ("space", "Space, e.g. example.signalwire.com", False),
+    ("space", "Space, e.g. example.signalwire.com (staging: example.swire.io)", False),
 )
 
 
@@ -354,6 +354,11 @@ class ProfileFormScreen(ModalScreen[dict[str, str] | None]):
         if missing:
             self.query_one("#pf-error", Static).update(
                 Text(f"required: {', '.join(missing)}", style=ui.FUCHSIA))
+            return
+        try:
+            config.check_space(values["space"])
+        except config.ConfigError as exc:
+            self.query_one("#pf-error", Static).update(Text(str(exc), style=ui.FUCHSIA))
             return
         self.dismiss(values)
 

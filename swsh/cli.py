@@ -983,19 +983,27 @@ def login(
     name: str = typer.Option("default", "--name", "-n", help="Profile name."),
     project: str | None = typer.Option(None, help="Project ID."),
     token: str | None = typer.Option(None, help="API token."),
-    space: str | None = typer.Option(None, help="Space, e.g. example.signalwire.com."),
+    space: str | None = typer.Option(
+        None, help="Space, e.g. example.signalwire.com (or example.swire.io for staging)."),
 ) -> None:
     """Store credentials durably in ~/ (0600 config file), so a profile survives
     reboots and new terminals. Set SWSH_USE_KEYRING=1 to also mirror the token
     into the OS keyring."""
-    if not (project and token and space):
-        # Where the three values come from. The tool never said, and a token is
-        # not something anyone has lying around.
+    # The space comes first so a wrong domain fails before anything else is
+    # typed, and so the credentials hint can name the space's real host.
+    space = space or typer.prompt("Space (e.g. example.signalwire.com, or example.swire.io)")
+    try:
+        host = config.check_space(space)
+    except ConfigError as exc:
+        ui.fail(str(exc))
+        raise typer.Exit(1) from None
+    if not (project and token):
+        # Where the values come from. The tool never said, and a token is not
+        # something anyone has lying around.
         ui.console.print("[muted]API credentials live at[/muted] "
-                         "[brand]https://<your-space>.signalwire.com/credentials[/brand]")
+                         f"[brand]https://{host}/credentials[/brand]")
     project = project or typer.prompt("Project ID")
     token = token or typer.prompt("API token", hide_input=True)
-    space = space or typer.prompt("Space (e.g. example.signalwire.com)")
 
     # Check before storing. `save_profile` wrote whatever it was given and the
     # first sign of a typo was whatever command someone ran next failing in a

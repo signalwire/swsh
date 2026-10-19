@@ -286,6 +286,10 @@ class TestRelayHost:
         p = config.Profile("x", "p", "t", "example.signalwire.com")
         assert p.relay_host == "relay.signalwire.com"
 
+    def test_staging_relay_host(self):
+        p = config.Profile("x", "p", "t", "example.swire.io")
+        assert p.relay_host == "relay.swire.io"
+
     def test_relay_host_ignores_url_scheme(self):
         p = config.Profile("x", "p", "t", "https://example.signalwire.com/")
         assert p.relay_host == "relay.signalwire.com"
@@ -372,6 +376,27 @@ class TestSpaceNormalisation:
 
     def test_whitespace_is_tolerated(self):
         assert self._host("  example  ") == "example.signalwire.com"
+
+    def test_a_staging_hostname_is_never_rewritten(self):
+        # Staging spaces live on swire.io; appending would break them.
+        assert self._host("example.swire.io") == "example.swire.io"
+        assert self._host("https://example.swire.io/") == "example.swire.io"
+
+    def test_staging_base_url(self):
+        profile = config.Profile(name="t", project="p", token="k", space="example.swire.io")
+        assert profile.base_url == "https://example.swire.io"
+
+    def test_known_domains_are_accepted(self):
+        assert config.check_space("example") == "example.signalwire.com"
+        assert config.check_space("https://Example.SignalWire.com/") == "Example.SignalWire.com"
+        assert config.check_space("dev.swire.io") == "dev.swire.io"
+        assert config.space_domain("dev.swire.io") == "swire.io"
+
+    @pytest.mark.parametrize("space", ["example.example.com", "swire.io", "signalwire.com",
+                                       "example.notswire.io", "localhost:8080", ""])
+    def test_unknown_domains_are_refused(self, space):
+        with pytest.raises(config.ConfigError, match="invalid space domain"):
+            config.check_space(space)
 
     def test_a_host_with_a_port_is_never_rewritten(self):
         assert self._host("localhost:8080") == "localhost:8080"

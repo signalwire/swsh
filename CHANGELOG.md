@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 loosely: entries say what changed for someone using the tool, not what moved in
 the source.
 
+## [3.0.2] — 2026-10-19
+
+### Added
+
+- **Staging spaces.** A profile can point at `*.swire.io`
+  (`sw login --space dev.swire.io`, or the profile form in `sw sh`). REST,
+  RELAY (`relay.swire.io`) and the softphone all follow the space's domain.
+
+### Changed
+
+- **`sw login` and the `sw sh` profile form check the space's domain.** Only
+  `*.signalwire.com` and `*.swire.io` are accepted; anything else fails right
+  away with `invalid space domain`. `sw login` asks for the space first, and the
+  credentials hint names the space's real host instead of `<your-space>.signalwire.com`.
+
 ## [3.0.1] — 2026-10-16
 
 ### Fixed

@@ -51,6 +51,38 @@ ENV_ALIASES: dict[str, tuple[str, ...]] = {
 # the docs refer to it ("your space name").
 DEFAULT_SPACE_DOMAIN = ".signalwire.com"
 
+# The domains a space can live on: production, and staging for internal users.
+# A space entered anywhere else is a typo or a URL from the wrong place, and is
+# refused when a profile is saved rather than failing later on DNS.
+KNOWN_DOMAINS = ("signalwire.com", "swire.io")
+
+
+def normalise_host(space: str) -> str:
+    """Bare hostname, however the space was written; see ``Profile.host``."""
+    space = space.strip()
+    for prefix in ("https://", "http://"):
+        if space.startswith(prefix):
+            space = space[len(prefix) :]
+    space = space.rstrip("/")
+    if space and "." not in space and ":" not in space:
+        return f"{space}{DEFAULT_SPACE_DOMAIN}"
+    return space
+
+
+def space_domain(space: str) -> str | None:
+    """The known domain a space lives on, or None if it is on neither."""
+    host = normalise_host(space).lower()
+    return next((d for d in KNOWN_DOMAINS if host.endswith(f".{d}")), None)
+
+
+def check_space(space: str) -> str:
+    """The space's hostname, or ConfigError if it is not on a known domain."""
+    if space_domain(space) is None:
+        allowed = " or ".join(f"*.{d}" for d in KNOWN_DOMAINS)
+        raise ConfigError(f"invalid space domain: {space.strip() or '(empty)'} "
+                          f"(spaces live on {allowed})")
+    return normalise_host(space)
+
 
 def config_path() -> Path:
     return Path(user_config_dir(APP_NAME)) / "config.toml"
@@ -118,17 +150,10 @@ class Profile:
         the docs both call it "your space name". Left alone it produced
         ``https://example`` and a DNS failure with nothing pointing at the cause.
 
-        A value that already carries a domain is never touched, so a full
-        hostname and anything with a port keep working.
+        A value that already carries a domain is never touched, so staging hosts
+        (``example.swire.io``) and anything with a port keep working.
         """
-        space = self.space.strip()
-        for prefix in ("https://", "http://"):
-            if space.startswith(prefix):
-                space = space[len(prefix) :]
-        space = space.rstrip("/")
-        if space and "." not in space and ":" not in space:
-            return f"{space}{DEFAULT_SPACE_DOMAIN}"
-        return space
+        return normalise_host(self.space)
 
     @property
     def base_url(self) -> str:
@@ -138,8 +163,9 @@ class Profile:
     def relay_host(self) -> str:
         """The RELAY endpoint for this space.
 
-        RELAY connects to ``relay.<domain>`` (``relay.signalwire.com``), derived
-        from the space's domain, not its full ``<space>.<domain>`` hostname.
+        RELAY connects to ``relay.<domain>``: ``relay.signalwire.com`` for
+        production, ``relay.swire.io`` for staging. It is derived from the
+        space's domain, not its full ``<space>.<domain>`` hostname.
         """
         labels = self.host.split(".")
         domain = ".".join(labels[-2:]) if len(labels) >= 2 else self.host
